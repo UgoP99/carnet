@@ -18,7 +18,7 @@ Read: DATA_MODEL (all), DOMAIN (enums, seeds).
 
 Done when: all invariants in DATA_MODEL have tests; week helpers tested across year boundary (2026-W53/2027-W01) and DST; `parseHttpsUrl` rejects `javascript:`, `data:`, `http:`, credentials; coverage of domain+db logic is high (no UI yet).
 
-### [ ] 2. App shell
+### [x] 2. App shell
 
 Read: ARCHITECTURE (Routing, Patterns), SPEC §3.
 
