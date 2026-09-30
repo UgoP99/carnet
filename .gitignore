@@ -1,0 +1,42 @@
+node_modules/
+dist/
+dev-dist/
+coverage/
+*.tsbuildinfo
+*.log
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Secrets & credentials (none are needed by this project — never add any)
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+*.gpg
+*.asc
+id_rsa*
+id_ed25519*
+*.ppk
+credentials*
+secrets*
+*.secret
+.npmrc.local
+.netrc
+.aws/
+.ssh/
+.gnupg/
+
+# Personal data: app backups must NEVER be committed
+carnet-backup-*.json
+*backup*.json
+
+# Claude Code local files
+.claude/settings.local.json
+CLAUDE.local.md

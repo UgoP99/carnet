@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npm ci)",
+      "Bash(npm ls *)",
+      "Bash(npm audit *)",
+      "Bash(npm outdated *)",
+      "Bash(npm view *)",
+      "Bash(npx vitest *)",
+      "Bash(npx tsc *)",
+      "Bash(npx eslint *)",
+      "Bash(npx prettier *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git switch *)",
+      "Bash(git branch *)",
+      "Bash(git stash *)",
+      "Bash(git restore *)",
+      "PowerShell(npm run *)",
+      "PowerShell(npm test *)",
+      "PowerShell(npm ci)",
+      "PowerShell(npm ls *)",
+      "PowerShell(npm audit *)",
+      "PowerShell(npm outdated *)",
+      "PowerShell(npm view *)",
+      "PowerShell(npx vitest *)",
+      "PowerShell(npx tsc *)",
+      "PowerShell(npx eslint *)",
+      "PowerShell(npx prettier *)",
+      "PowerShell(git status *)",
+      "PowerShell(git diff *)",
+      "PowerShell(git log *)",
+      "PowerShell(git show *)",
+      "PowerShell(git add *)",
+      "PowerShell(git commit *)",
+      "PowerShell(git switch *)",
+      "PowerShell(git branch *)",
+      "PowerShell(git stash *)",
+      "PowerShell(git restore *)",
+      "WebFetch(domain:code.claude.com)",
+      "WebFetch(domain:dexie.org)",
+      "WebFetch(domain:react.dev)",
+      "WebFetch(domain:reactrouter.com)",
+      "WebFetch(domain:vite.dev)",
+      "WebFetch(domain:vite-pwa-org.netlify.app)",
+      "WebFetch(domain:tailwindcss.com)",
+      "WebFetch(domain:zod.dev)",
+      "WebFetch(domain:vitest.dev)",
+      "WebFetch(domain:developer.mozilla.org)",
+      "WebFetch(domain:webkit.org)"
+    ],
+    "ask": [
+      "Bash(npm install *)",
+      "Bash(npm i *)",
+      "Bash(npm uninstall *)",
+      "Bash(npm update *)",
+      "Bash(git push *)",
+      "Bash(git reset *)",
+      "Bash(git rebase *)",
+      "Bash(git clean *)",
+      "Bash(git tag *)",
+      "Bash(gh *)",
+      "PowerShell(npm install *)",
+      "PowerShell(npm i *)",
+      "PowerShell(npm uninstall *)",
+      "PowerShell(npm update *)",
+      "PowerShell(git push *)",
+      "PowerShell(git reset *)",
+      "PowerShell(git rebase *)",
+      "PowerShell(git clean *)",
+      "PowerShell(git tag *)",
+      "PowerShell(gh *)",
+      "PowerShell(Remove-Item *)",
+      "Edit(./.github/**)",
+      "Edit(./.claude/**)",
+      "Edit(./vite.config.ts)",
+      "Edit(./package.json)",
+      "Edit(./.npmrc)"
+    ],
+    "deny": [
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)",
+      "Read(**/*backup*.json)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.npmrc)",
+      "Read(~/.config/gh/**)",
+      "Read(./package-lock.json)",
+      "Read(./dist/**)",
+      "Read(./dev-dist/**)",
+      "Read(./coverage/**)",
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "Bash(sudo *)",
+      "Bash(rm -rf *)",
+      "Bash(npm publish *)",
+      "Bash(git push --force *)",
+      "Bash(git push -f *)",
+      "PowerShell(Invoke-WebRequest *)",
+      "PowerShell(Invoke-RestMethod *)",
+      "PowerShell(npm publish *)",
+      "PowerShell(git push --force *)",
+      "PowerShell(git push -f *)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/session-context.mjs"],
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/post-edit.mjs"],
+            "timeout": 90,
+            "statusMessage": "Format + lint"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node",
+            "args": ["${CLAUDE_PROJECT_DIR}/.claude/hooks/stop-gate.mjs"],
+            "timeout": 300,
+            "statusMessage": "Quality gate (typecheck + related tests)"
+          }
+        ]
+      }
+    ]
+  }
+}
