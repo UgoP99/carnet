@@ -46,3 +46,12 @@ DATA_MODEL.md only defines e1RM; extended the same idea to the other three metri
 
 D15 — 2026-09-30 — Video link validation reuses `lib/url.ts` `parseHttpsUrl` instead of Zod's `z.url()`
 Zod v4's `z.url()` doesn't reject userinfo (`https://user:pass@host`); `parseHttpsUrl` already does and is unit-tested, so the schema calls it via `.refine()` instead of duplicating the check.
+
+D16 — 2026-09-30 — Floating "+" (new session) only on Journal for now
+SPEC §3 puts it on Semaine and Journal, but Semaine is still a placeholder (step 8). Add it there when that step builds the real screen.
+
+D17 — 2026-09-30 — Pain zone picker uses a native `<select>`, not chips
+19 body zones as chips would dominate the screen; a `<select>` stays compact and is still a single tap on iOS.
+
+D18 — 2026-09-30 — SessionForm reads `onValuesChange` through a ref, not as an effect dependency
+The callback is an inline prop that changes identity on every parent render; depending on it directly re-fired draft autosave (and raced its own `clearSessionDraft` after submit) without any real value change. The effect now depends only on `values`; the latest callback is read from a ref kept fresh by a separate no-deps effect.

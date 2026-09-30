@@ -5,10 +5,6 @@ import { AppRoutes } from './routes';
 
 const ROUTES: { path: string; heading: string }[] = [
   { path: '/', heading: 'Semaine' },
-  { path: '/journal', heading: 'Journal' },
-  { path: '/sessions/new', heading: 'Nouvelle séance' },
-  { path: '/sessions/abc', heading: 'Séance' },
-  { path: '/sessions/abc/edit', heading: 'Modifier la séance' },
   { path: '/techniques', heading: 'Techniques' },
   { path: '/techniques/new', heading: 'Nouvelle technique' },
   { path: '/techniques/abc', heading: 'Technique' },
@@ -32,6 +28,22 @@ describe('AppRoutes', () => {
       </MemoryRouter>,
     );
     expect(screen.getByText(heading, { selector: 'p' })).toBeInTheDocument();
+  });
+
+  const SESSION_ROUTES: { path: string; heading: string }[] = [
+    { path: '/journal', heading: 'Journal' },
+    { path: '/sessions/new', heading: 'Nouvelle séance' },
+    { path: '/sessions/abc', heading: 'Séance' },
+    { path: '/sessions/abc/edit', heading: 'Modifier la séance' },
+  ];
+
+  it.each(SESSION_ROUTES)('renders $path', async ({ path, heading }) => {
+    render(
+      <MemoryRouter initialEntries={[path]}>
+        <AppRoutes />
+      </MemoryRouter>,
+    );
+    expect(await screen.findByRole('heading', { name: heading })).toBeInTheDocument();
   });
 
   it('renders a not-found screen for unknown paths', () => {

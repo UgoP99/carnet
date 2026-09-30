@@ -1,5 +1,9 @@
 import { Construction } from 'lucide-react';
 import { Route, Routes } from 'react-router';
+import { EditSessionPage } from '@/features/sessions/EditSessionPage';
+import { NewSessionPage } from '@/features/sessions/NewSessionPage';
+import { SessionDetail } from '@/features/sessions/SessionDetail';
+import { SessionList } from '@/features/sessions/SessionList';
 import { EmptyState } from '@/ui/EmptyState';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
@@ -13,10 +17,10 @@ export function AppRoutes() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Placeholder title="Semaine" />} />
-        <Route path="journal" element={<Placeholder title="Journal" />} />
-        <Route path="sessions/new" element={<Placeholder title="Nouvelle séance" />} />
-        <Route path="sessions/:id" element={<Placeholder title="Séance" />} />
-        <Route path="sessions/:id/edit" element={<Placeholder title="Modifier la séance" />} />
+        <Route path="journal" element={<SessionList />} />
+        <Route path="sessions/new" element={<NewSessionPage />} />
+        <Route path="sessions/:id" element={<SessionDetail />} />
+        <Route path="sessions/:id/edit" element={<EditSessionPage />} />
         <Route path="techniques" element={<Placeholder title="Techniques" />} />
         <Route path="techniques/new" element={<Placeholder title="Nouvelle technique" />} />
         <Route path="techniques/:id" element={<Placeholder title="Technique" />} />

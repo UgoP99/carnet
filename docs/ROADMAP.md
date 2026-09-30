@@ -28,7 +28,7 @@ Read: ARCHITECTURE (Routing, Patterns), SPEC §3.
 
 Done when: navigation works at 375 px; tab targets ≥44 px; keyboard focus visible; test that each route renders.
 
-### [ ] 3. Sessions (generic)
+### [x] 3. Sessions (generic)
 
 Read: SPEC §4.1 (base fields, journal, detail, actions), DOMAIN (Intensity).
 

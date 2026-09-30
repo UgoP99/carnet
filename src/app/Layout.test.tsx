@@ -16,7 +16,7 @@ describe('Layout', () => {
     expect(screen.getByText('Semaine', { selector: 'p' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('link', { name: /journal/i }));
-    expect(screen.getByText('Journal', { selector: 'p' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Journal' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('link', { name: 'Rechercher' }));
     expect(screen.getByText('Recherche', { selector: 'p' })).toBeInTheDocument();

@@ -83,6 +83,13 @@ export const sessionSchema = z.object({
 });
 export type Session = z.infer<typeof sessionSchema>;
 
+export const sessionInputSchema = sessionSchema.omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type SessionInput = z.infer<typeof sessionInputSchema>;
+
 export const techniqueSchema = z.object({
   id,
   name: trimmed(80),

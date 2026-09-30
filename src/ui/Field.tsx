@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 interface FieldProps {
   label: string;
   htmlFor: string;
-  error?: string;
+  error?: string | undefined;
   hint?: string;
   children: ReactNode;
 }
