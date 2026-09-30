@@ -13,11 +13,9 @@ const ROUTES: { path: string; heading: string }[] = [
   { path: '/plans/abc', heading: 'Plan de jeu' },
   { path: '/stats', heading: 'Stats' },
   { path: '/search', heading: 'Recherche' },
-  { path: '/settings', heading: 'Réglages' },
   { path: '/settings/activities', heading: 'Activités' },
   { path: '/settings/exercises', heading: 'Exercices' },
   { path: '/settings/goals', heading: 'Objectifs' },
-  { path: '/settings/backup', heading: 'Sauvegarde' },
 ];
 
 describe('AppRoutes', () => {
@@ -30,14 +28,16 @@ describe('AppRoutes', () => {
     expect(screen.getByText(heading, { selector: 'p' })).toBeInTheDocument();
   });
 
-  const SESSION_ROUTES: { path: string; heading: string }[] = [
+  const HEADING_ROUTES: { path: string; heading: string }[] = [
     { path: '/journal', heading: 'Journal' },
     { path: '/sessions/new', heading: 'Nouvelle séance' },
     { path: '/sessions/abc', heading: 'Séance' },
     { path: '/sessions/abc/edit', heading: 'Modifier la séance' },
+    { path: '/settings', heading: 'Réglages' },
+    { path: '/settings/backup', heading: 'Sauvegarde' },
   ];
 
-  it.each(SESSION_ROUTES)('renders $path', async ({ path, heading }) => {
+  it.each(HEADING_ROUTES)('renders $path', async ({ path, heading }) => {
     render(
       <MemoryRouter initialEntries={[path]}>
         <AppRoutes />

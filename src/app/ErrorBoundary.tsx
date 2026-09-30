@@ -1,4 +1,8 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { exportBackup } from '@/db/backup';
+import { setLastExportAt } from '@/db/metaRepo';
+import { todayLocal } from '@/lib/dates';
+import { shareOrDownloadFile } from '@/lib/share';
 import { Button } from '@/ui/Button';
 
 interface ErrorBoundaryProps {
@@ -7,6 +11,7 @@ interface ErrorBoundaryProps {
 
 interface ErrorBoundaryState {
   hasError: boolean;
+  exportMessage?: string;
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -20,6 +25,28 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     console.error('Unhandled UI error', error, info.componentStack);
   }
 
+  handleExport = (): void => {
+    void this.exportData();
+  };
+
+  async exportData(): Promise<void> {
+    try {
+      const doc = await exportBackup();
+      const outcome = await shareOrDownloadFile(
+        `carnet-backup-${todayLocal()}.json`,
+        JSON.stringify(doc, null, 2),
+        'application/json',
+      );
+      if (outcome === 'cancelled') return;
+      await setLastExportAt(doc.exportedAt);
+      this.setState({ exportMessage: 'Sauvegarde exportée.' });
+    } catch (error) {
+      this.setState({
+        exportMessage: error instanceof Error ? error.message : "Échec de l'export.",
+      });
+    }
+  }
+
   override render(): ReactNode {
     if (!this.state.hasError) return this.props.children;
     return (
@@ -28,11 +55,12 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
           Une erreur est survenue
         </p>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Tes données restent sur l'appareil. L'export de sauvegarde sera disponible ici.
+          Tes données restent sur l'appareil.
         </p>
-        <Button disabled title="Disponible à l'étape 4 (sauvegarde)">
-          Exporter mes données
-        </Button>
+        <Button onClick={this.handleExport}>Exporter mes données</Button>
+        {this.state.exportMessage && (
+          <p className="text-sm text-slate-500 dark:text-slate-400">{this.state.exportMessage}</p>
+        )}
       </div>
     );
   }

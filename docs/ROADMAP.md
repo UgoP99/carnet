@@ -37,7 +37,7 @@ Read: SPEC §4.1 (base fields, journal, detail, actions), DOMAIN (Intensity).
 
 Done when: a session is logged in ≤ 5 taps + typing with defaults; draft survives reload; invariants hold through the UI; tests for create/edit/delete/duplicate flows.
 
-### [ ] 4. Backup & storage (do before real use)
+### [x] 4. Backup & storage (do before real use)
 
 Read: DATA_MODEL (Backup format), SECURITY (import rows + checklist), SPEC §4.6.
 

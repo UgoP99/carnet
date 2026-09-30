@@ -55,3 +55,6 @@ D17 — 2026-09-30 — Pain zone picker uses a native `<select>`, not chips
 
 D18 — 2026-09-30 — SessionForm reads `onValuesChange` through a ref, not as an effect dependency
 The callback is an inline prop that changes identity on every parent render; depending on it directly re-fired draft autosave (and raced its own `clearSessionDraft` after submit) without any real value change. The effect now depends only on `values`; the latest callback is read from a ref kept fresh by a separate no-deps effect.
+
+D19 — 2026-09-30 — Import orphan handling: drop when the record can't stand alone, detach when it can
+A session with a missing activity, or an exercise entry with a missing session/exercise, is dropped entirely; a technique log with a missing session is only detached (text kept, mirroring invariant 2); a game-plan node with a missing technique is dropped only if `kind === 'technique'`, otherwise just loses that field. A `meta.settings`/`lastExportAt` row that fails its own schema is dropped rather than stored, so a corrupted backup can't later crash `getSettings()`.

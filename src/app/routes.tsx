@@ -1,5 +1,8 @@
 import { Construction } from 'lucide-react';
 import { Route, Routes } from 'react-router';
+import { Backup } from '@/features/settings/Backup';
+import { BackupReminderBanner } from '@/features/settings/BackupReminderBanner';
+import { Settings } from '@/features/settings/Settings';
 import { EditSessionPage } from '@/features/sessions/EditSessionPage';
 import { NewSessionPage } from '@/features/sessions/NewSessionPage';
 import { SessionDetail } from '@/features/sessions/SessionDetail';
@@ -16,7 +19,15 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route index element={<Placeholder title="Semaine" />} />
+        <Route
+          index
+          element={
+            <>
+              <BackupReminderBanner />
+              <Placeholder title="Semaine" />
+            </>
+          }
+        />
         <Route path="journal" element={<SessionList />} />
         <Route path="sessions/new" element={<NewSessionPage />} />
         <Route path="sessions/:id" element={<SessionDetail />} />
@@ -29,11 +40,11 @@ export function AppRoutes() {
         <Route path="plans/:id" element={<Placeholder title="Plan de jeu" />} />
         <Route path="stats" element={<Placeholder title="Stats" />} />
         <Route path="search" element={<Placeholder title="Recherche" />} />
-        <Route path="settings" element={<Placeholder title="Réglages" />} />
+        <Route path="settings" element={<Settings />} />
         <Route path="settings/activities" element={<Placeholder title="Activités" />} />
         <Route path="settings/exercises" element={<Placeholder title="Exercices" />} />
         <Route path="settings/goals" element={<Placeholder title="Objectifs" />} />
-        <Route path="settings/backup" element={<Placeholder title="Sauvegarde" />} />
+        <Route path="settings/backup" element={<Backup />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

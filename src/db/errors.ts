@@ -5,3 +5,11 @@ export class InvariantError extends Error {
     this.name = 'InvariantError';
   }
 }
+
+/** Thrown when a backup file fails the import pipeline (size, parsing, version, …). */
+export class ImportError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'ImportError';
+  }
+}
