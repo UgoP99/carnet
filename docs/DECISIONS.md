@@ -34,3 +34,15 @@ English costs fewer tokens; docs split by topic and loaded on demand; path-scope
 
 D11 — 2026-09-30 — Technique logs are detached, not deleted, with their session
 Technical knowledge outlives the session record.
+
+D12 — 2026-09-30 — `labels.ts` split into `labels.ts` + `labels.grappling.ts`
+The full enum+label table was exactly 250 lines (files must stay <250). Split by domain (general vs grappling-specific); `labels.ts` re-exports `labels.grappling.ts` so `@/domain/labels` stays the single import path described in ARCHITECTURE.md.
+
+D13 — 2026-09-30 — Trend formula: current load ÷ mean of the last 4 weeks (zero weeks included in the denominator), null unless ≥2 of those weeks have load
+DOMAIN.md states the ratio but not how empty weeks are averaged; averaging over all 4 (not just non-zero weeks) keeps the ratio comparable week to week. Revisit if it reads oddly in the Semaine view (step 8).
+
+D14 — 2026-09-30 — "Best set" per exercise metric: highest e1RM (weight_reps), most reps (reps), longest duration (time), longest distance (distance)
+DATA_MODEL.md only defines e1RM; extended the same idea to the other three metrics so every exercise has a sensible "best set" in session detail (step 7).
+
+D15 — 2026-09-30 — Video link validation reuses `lib/url.ts` `parseHttpsUrl` instead of Zod's `z.url()`
+Zod v4's `z.url()` doesn't reject userinfo (`https://user:pass@host`); `parseHttpsUrl` already does and is unit-tested, so the schema calls it via `.refine()` instead of duplicating the check.

@@ -7,7 +7,7 @@ Each step = one session = one commit (or a few). "Read" lists the only docs need
 
 Vite + React + TS strict, Tailwind, ESLint (security rules), Prettier, Vitest + fake-indexeddb, vite-plugin-pwa, build-time CSP, icons, CI/deploy/CodeQL/Dependabot, Claude Code config. Verified: build OK, app renders under CSP, SW activates.
 
-### [ ] 1. Domain & database
+### [x] 1. Domain & database
 
 Read: DATA_MODEL (all), DOMAIN (enums, seeds).
 
