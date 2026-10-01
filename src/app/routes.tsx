@@ -1,8 +1,9 @@
 import { Construction } from 'lucide-react';
 import { Route, Routes } from 'react-router';
+import { ActivitiesSettings } from '@/features/settings/ActivitiesSettings';
 import { Backup } from '@/features/settings/Backup';
-import { BackupReminderBanner } from '@/features/settings/BackupReminderBanner';
 import { ExercisesSettings } from '@/features/settings/ExercisesSettings';
+import { GoalsSettings } from '@/features/settings/GoalsSettings';
 import { Settings } from '@/features/settings/Settings';
 import { EditSessionPage } from '@/features/sessions/EditSessionPage';
 import { NewSessionPage } from '@/features/sessions/NewSessionPage';
@@ -12,6 +13,7 @@ import { EditTechniquePage } from '@/features/techniques/EditTechniquePage';
 import { NewTechniquePage } from '@/features/techniques/NewTechniquePage';
 import { TechniqueDetail } from '@/features/techniques/TechniqueDetail';
 import { TechniqueList } from '@/features/techniques/TechniqueList';
+import { WeekView } from '@/features/week/WeekView';
 import { EmptyState } from '@/ui/EmptyState';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
@@ -24,15 +26,7 @@ export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Layout />}>
-        <Route
-          index
-          element={
-            <>
-              <BackupReminderBanner />
-              <Placeholder title="Semaine" />
-            </>
-          }
-        />
+        <Route index element={<WeekView />} />
         <Route path="journal" element={<SessionList />} />
         <Route path="sessions/new" element={<NewSessionPage />} />
         <Route path="sessions/:id" element={<SessionDetail />} />
@@ -46,9 +40,9 @@ export function AppRoutes() {
         <Route path="stats" element={<Placeholder title="Stats" />} />
         <Route path="search" element={<Placeholder title="Recherche" />} />
         <Route path="settings" element={<Settings />} />
-        <Route path="settings/activities" element={<Placeholder title="Activités" />} />
+        <Route path="settings/activities" element={<ActivitiesSettings />} />
         <Route path="settings/exercises" element={<ExercisesSettings />} />
-        <Route path="settings/goals" element={<Placeholder title="Objectifs" />} />
+        <Route path="settings/goals" element={<GoalsSettings />} />
         <Route path="settings/backup" element={<Backup />} />
         <Route path="*" element={<NotFound />} />
       </Route>

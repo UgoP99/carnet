@@ -75,7 +75,7 @@ Read: SPEC §4.1 (strength block), DOMAIN (Strength), DATA_MODEL (ExerciseEntry,
 
 Done when: logging 4 exercises × 3 sets with prefill is fast (numeric keypad via `inputMode="decimal"`); last-time lookup excludes current session (test).
 
-### [ ] 8. Week dashboard + goals
+### [x] 8. Week dashboard + goals
 
 Read: SPEC §4.3 (Semaine), DATA_MODEL (derived values, Meta.settings).
 

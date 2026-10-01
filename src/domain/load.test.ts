@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sessionLoad, trend, weeklyTotals } from './load';
+import { loadForWeek, sessionLoad, trend, weeklyTotals } from './load';
 import type { Activity, Session } from './schemas';
 
 const ts = new Date().toISOString();
@@ -70,6 +70,21 @@ describe('weeklyTotals', () => {
     const totals = weeklyTotals([session({ activityId: 'missing' })], []);
     expect(totals.sessions).toBe(1);
     expect(totals.byCategory).toEqual({});
+  });
+});
+
+describe('loadForWeek', () => {
+  it('sums load for sessions within the ISO week, Monday to Sunday', () => {
+    const sessions = [
+      session({ id: 's1', date: '2026-09-28', durationMin: 60, rpe: 5 }), // Mon W40
+      session({ id: 's2', date: '2026-10-04', durationMin: 30, rpe: 7 }), // Sun W40
+      session({ id: 's3', date: '2026-10-05', durationMin: 45, rpe: 6 }), // Mon W41 — excluded
+    ];
+    expect(loadForWeek(sessions, '2026-W40')).toBe(60 * 5 + 30 * 7);
+  });
+
+  it('returns 0 for a week with no sessions', () => {
+    expect(loadForWeek([], '2026-W40')).toBe(0);
   });
 });
 

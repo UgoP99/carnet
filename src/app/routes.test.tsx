@@ -4,13 +4,10 @@ import { MemoryRouter } from 'react-router';
 import { AppRoutes } from './routes';
 
 const ROUTES: { path: string; heading: string }[] = [
-  { path: '/', heading: 'Semaine' },
   { path: '/plans', heading: 'Plans de jeu' },
   { path: '/plans/abc', heading: 'Plan de jeu' },
   { path: '/stats', heading: 'Stats' },
   { path: '/search', heading: 'Recherche' },
-  { path: '/settings/activities', heading: 'Activités' },
-  { path: '/settings/goals', heading: 'Objectifs' },
 ];
 
 describe('AppRoutes', () => {
@@ -24,6 +21,7 @@ describe('AppRoutes', () => {
   });
 
   const HEADING_ROUTES: { path: string; heading: string }[] = [
+    { path: '/', heading: 'Semaine' },
     { path: '/journal', heading: 'Journal' },
     { path: '/sessions/new', heading: 'Nouvelle séance' },
     { path: '/sessions/abc', heading: 'Séance' },
@@ -33,7 +31,9 @@ describe('AppRoutes', () => {
     { path: '/techniques/abc', heading: 'Technique' },
     { path: '/techniques/abc/edit', heading: 'Modifier la technique' },
     { path: '/settings', heading: 'Réglages' },
+    { path: '/settings/activities', heading: 'Activités' },
     { path: '/settings/exercises', heading: 'Exercices' },
+    { path: '/settings/goals', heading: 'Objectifs' },
     { path: '/settings/backup', heading: 'Sauvegarde' },
   ];
 

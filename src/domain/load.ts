@@ -1,3 +1,4 @@
+import { weekRange, type WeekKey } from '@/lib/dates';
 import type { ActivityCategory } from './labels';
 import type { Activity, Session } from './schemas';
 
@@ -46,6 +47,14 @@ export function weeklyTotals(sessions: Session[], activities: Activity[]): Weekl
   }
 
   return totals;
+}
+
+/** Total load of the sessions falling within the given ISO week. */
+export function loadForWeek(sessions: Session[], weekKey: WeekKey): number {
+  const { start, end } = weekRange(weekKey);
+  return sessions
+    .filter((session) => session.date >= start && session.date <= end)
+    .reduce((sum, session) => sum + sessionLoad(session), 0);
 }
 
 /**

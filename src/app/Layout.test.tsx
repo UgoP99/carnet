@@ -13,7 +13,7 @@ describe('Layout', () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByText('Semaine', { selector: 'p' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Semaine' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('link', { name: /journal/i }));
     expect(await screen.findByRole('heading', { name: 'Journal' })).toBeInTheDocument();
