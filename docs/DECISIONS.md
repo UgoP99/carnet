@@ -70,3 +70,9 @@ With `exactOptionalPropertyTypes`, Zod's `.optional()` infers `key?: T | undefin
 
 D23 — 2026-10-01 — `SessionForm.tsx` split into `sessionFormValues.ts` (types/schema/defaults) + `SessionBaseFields.tsx` (date/time/duration/RPE/energy)
 Adding the grappling block pushed the file past 250 lines; the split keeps pure data logic separate from JSX and matches the existing per-section component pattern (`PainsField`, now `GrapplingSection`).
+
+D24 — 2026-10-01 — Technique library filters: AND across categories, OR within a multi-select category
+Selecting both "submission" and "guard_pass" types narrows to either type (OR), but combined with a perspective filter it's type-match AND perspective-match. Implemented once as a pure `filterTechniques()` in `src/domain/technique.ts`, unit-tested directly instead of through the UI. Archived techniques are excluded by default in the library list (toggle to show them) but, per invariant 5, only hidden unconditionally from pickers (`TechniquePicker`).
+
+D25 — 2026-10-01 — Added `SafeLink` (`src/ui/SafeLink.tsx`) and `techniqueInputSchema` (`src/domain/schemas.ts`)
+`SafeLink` was referenced by `.claude/rules/ui.md` for external links but didn't exist yet — first feature needing one (technique video links); it re-validates with `parseHttpsUrl` and renders nothing on failure (defense in depth). `techniqueInputSchema` mirrors the existing `sessionInputSchema` pattern (`techniqueSchema.omit({id, archived, createdAt, updatedAt})`) so the create/edit form validates through the same Zod schema the DB uses, instead of the untyped `Omit` the repo used before.

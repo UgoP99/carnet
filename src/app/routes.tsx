@@ -7,6 +7,10 @@ import { EditSessionPage } from '@/features/sessions/EditSessionPage';
 import { NewSessionPage } from '@/features/sessions/NewSessionPage';
 import { SessionDetail } from '@/features/sessions/SessionDetail';
 import { SessionList } from '@/features/sessions/SessionList';
+import { EditTechniquePage } from '@/features/techniques/EditTechniquePage';
+import { NewTechniquePage } from '@/features/techniques/NewTechniquePage';
+import { TechniqueDetail } from '@/features/techniques/TechniqueDetail';
+import { TechniqueList } from '@/features/techniques/TechniqueList';
 import { EmptyState } from '@/ui/EmptyState';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
@@ -32,10 +36,10 @@ export function AppRoutes() {
         <Route path="sessions/new" element={<NewSessionPage />} />
         <Route path="sessions/:id" element={<SessionDetail />} />
         <Route path="sessions/:id/edit" element={<EditSessionPage />} />
-        <Route path="techniques" element={<Placeholder title="Techniques" />} />
-        <Route path="techniques/new" element={<Placeholder title="Nouvelle technique" />} />
-        <Route path="techniques/:id" element={<Placeholder title="Technique" />} />
-        <Route path="techniques/:id/edit" element={<Placeholder title="Modifier la technique" />} />
+        <Route path="techniques" element={<TechniqueList />} />
+        <Route path="techniques/new" element={<NewTechniquePage />} />
+        <Route path="techniques/:id" element={<TechniqueDetail />} />
+        <Route path="techniques/:id/edit" element={<EditTechniquePage />} />
         <Route path="plans" element={<Placeholder title="Plans de jeu" />} />
         <Route path="plans/:id" element={<Placeholder title="Plan de jeu" />} />
         <Route path="stats" element={<Placeholder title="Stats" />} />

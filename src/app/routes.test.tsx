@@ -5,10 +5,6 @@ import { AppRoutes } from './routes';
 
 const ROUTES: { path: string; heading: string }[] = [
   { path: '/', heading: 'Semaine' },
-  { path: '/techniques', heading: 'Techniques' },
-  { path: '/techniques/new', heading: 'Nouvelle technique' },
-  { path: '/techniques/abc', heading: 'Technique' },
-  { path: '/techniques/abc/edit', heading: 'Modifier la technique' },
   { path: '/plans', heading: 'Plans de jeu' },
   { path: '/plans/abc', heading: 'Plan de jeu' },
   { path: '/stats', heading: 'Stats' },
@@ -33,6 +29,10 @@ describe('AppRoutes', () => {
     { path: '/sessions/new', heading: 'Nouvelle séance' },
     { path: '/sessions/abc', heading: 'Séance' },
     { path: '/sessions/abc/edit', heading: 'Modifier la séance' },
+    { path: '/techniques', heading: 'Techniques' },
+    { path: '/techniques/new', heading: 'Nouvelle technique' },
+    { path: '/techniques/abc', heading: 'Technique' },
+    { path: '/techniques/abc/edit', heading: 'Modifier la technique' },
     { path: '/settings', heading: 'Réglages' },
     { path: '/settings/backup', heading: 'Sauvegarde' },
   ];

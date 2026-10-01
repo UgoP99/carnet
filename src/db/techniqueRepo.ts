@@ -1,9 +1,9 @@
 import { newId } from '@/lib/id';
-import { techniqueSchema, type Technique } from '@/domain/schemas';
+import { techniqueSchema, type Technique, type TechniqueInput } from '@/domain/schemas';
 import { db } from './db';
 import { InvariantError } from './errors';
 
-export type CreateTechniqueInput = Omit<Technique, 'id' | 'archived' | 'createdAt' | 'updatedAt'>;
+export type CreateTechniqueInput = TechniqueInput;
 export type UpdateTechniqueInput = Partial<Omit<Technique, 'id' | 'createdAt' | 'updatedAt'>>;
 
 export async function listTechniques(): Promise<Technique[]> {

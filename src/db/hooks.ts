@@ -19,6 +19,23 @@ export function useTechniques(): Technique[] | undefined {
   return useLiveQuery(() => db.techniques.toArray(), []);
 }
 
+export function useTechnique(id: string | undefined): Technique | undefined {
+  return useLiveQuery(() => (id ? db.techniques.get(id) : undefined), [id]);
+}
+
+export function useTechniqueLogs(): TechniqueLog[] | undefined {
+  return useLiveQuery(() => db.techniqueLogs.toArray(), []);
+}
+
+export function useTechniqueLogsForTechnique(
+  techniqueId: string | undefined,
+): TechniqueLog[] | undefined {
+  return useLiveQuery(
+    () => (techniqueId ? db.techniqueLogs.where('techniqueId').equals(techniqueId).toArray() : []),
+    [techniqueId],
+  );
+}
+
 export function useSessionTechniqueLogs(sessionId: string | undefined): TechniqueLog[] | undefined {
   return useLiveQuery(
     () => (sessionId ? db.techniqueLogs.where('sessionId').equals(sessionId).toArray() : []),

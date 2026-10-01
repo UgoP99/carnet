@@ -112,6 +112,14 @@ export const techniqueSchema = z.object({
 });
 export type Technique = z.infer<typeof techniqueSchema>;
 
+export const techniqueInputSchema = techniqueSchema.omit({
+  id: true,
+  archived: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type TechniqueInput = z.infer<typeof techniqueInputSchema>;
+
 export const techniqueLogSchema = z.object({
   id,
   techniqueId: id,

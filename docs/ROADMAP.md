@@ -56,7 +56,7 @@ Read: SPEC §4.1 (grappling block), DOMAIN (Grappling).
 
 Done when: logging a BJJ class with 2 techniques and details takes < 1 min; logs appear with correct date; editing the session edits/removes its logs correctly.
 
-### [ ] 6. Technique library
+### [x] 6. Technique library
 
 Read: SPEC §4.2, DOMAIN (Position, Perspective, TechniqueType).
 
