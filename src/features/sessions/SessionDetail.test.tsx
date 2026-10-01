@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/db/db';
-import { makeActivity, makeSession } from '@/test/factories';
+import { createTechniqueLog } from '@/db/techniqueLogRepo';
+import { makeActivity, makeSession, makeTechnique } from '@/test/factories';
 import { SessionDetail } from './SessionDetail';
 
 beforeEach(async () => {
@@ -58,5 +59,31 @@ describe('SessionDetail', () => {
 
     expect(await screen.findByText('Journal')).toBeInTheDocument();
     expect(await db.sessions.get(session.id)).toBeUndefined();
+  });
+
+  it('shows the grappling block and technique logs with a link to the technique', async () => {
+    const activity = makeActivity({ name: 'JJB perso', category: 'grappling' });
+    await db.activities.add(activity);
+    const technique = makeTechnique({ name: 'Armbar from closed guard' });
+    await db.techniques.add(technique);
+    const session = makeSession({
+      activityId: activity.id,
+      grappling: { attire: 'gi', content: ['sparring'], partners: ['Marc'] },
+    });
+    await db.sessions.add(session);
+    await createTechniqueLog({
+      techniqueId: technique.id,
+      sessionId: session.id,
+      date: session.date,
+      text: 'Setup détaillé',
+    });
+
+    renderDetail(session.id);
+
+    expect(await screen.findByText('Gi')).toBeInTheDocument();
+    expect(screen.getByText('Marc')).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: technique.name });
+    expect(link).toHaveAttribute('href', `/techniques/${technique.id}`);
+    expect(screen.getByText('Setup détaillé')).toBeInTheDocument();
   });
 });

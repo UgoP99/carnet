@@ -58,3 +58,15 @@ The callback is an inline prop that changes identity on every parent render; dep
 
 D19 — 2026-09-30 — Import orphan handling: drop when the record can't stand alone, detach when it can
 A session with a missing activity, or an exercise entry with a missing session/exercise, is dropped entirely; a technique log with a missing session is only detached (text kept, mirroring invariant 2); a game-plan node with a missing technique is dropped only if `kind === 'technique'`, otherwise just loses that field. A `meta.settings`/`lastExportAt` row that fails its own schema is dropped rather than stored, so a corrupted backup can't later crash `getSettings()`.
+
+D20 — 2026-10-01 — Quick technique creation defaults: perspective `neutral`, type `concept`, attire `both`
+SPEC §4.1 says the inline picker only asks for name + position; `perspective`/`type`/`attire` are required by the schema, so they get generic defaults and stay editable later in the technique library (step 6).
+
+D21 — 2026-10-01 — TechniqueLogs on a session are reconciled, not replaced, on save
+`syncSessionTechniqueLogs(sessionId, date, drafts)` diffs the session's current logs against the form's draft list by id (create/update/delete in one transaction), so editing a session's "Techniques vues" only touches what actually changed instead of deleting and recreating every log.
+
+D22 — 2026-10-01 — Form-level optional fields use `T | undefined` (required key), not `T?` (optional key)
+With `exactOptionalPropertyTypes`, Zod's `.optional()` infers `key?: T | undefined` while a hand-written `key?: T` means "absent or T" — not the same type. Draft values round-tripped through `sessionFormValuesSchema` (autosave) must match exactly, so `SessionFormValues`/`TechniqueLogDraft` declare these fields as always-present unions (`rpe: number | undefined`, `logId: string | undefined`, …) instead of optional keys.
+
+D23 — 2026-10-01 — `SessionForm.tsx` split into `sessionFormValues.ts` (types/schema/defaults) + `SessionBaseFields.tsx` (date/time/duration/RPE/energy)
+Adding the grappling block pushed the file past 250 lines; the split keeps pure data logic separate from JSX and matches the existing per-section component pattern (`PainsField`, now `GrapplingSection`).

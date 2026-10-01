@@ -3,7 +3,8 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/db/db';
-import { makeActivity, makeSession } from '@/test/factories';
+import { createTechniqueLog } from '@/db/techniqueLogRepo';
+import { makeActivity, makeSession, makeTechnique } from '@/test/factories';
 import { EditSessionPage } from './EditSessionPage';
 
 beforeEach(async () => {
@@ -39,5 +40,52 @@ describe('EditSessionPage', () => {
     expect(await screen.findByText('Détail')).toBeInTheDocument();
     const updated = await db.sessions.get(session.id);
     expect(updated?.rpe).toBe(8);
+  });
+
+  it('removes a detached technique log and keeps the others on update', async () => {
+    const activity = makeActivity({ name: 'JJB perso', category: 'grappling' });
+    await db.activities.add(activity);
+    const techniqueA = makeTechnique({ name: 'Armbar from closed guard' });
+    const techniqueB = makeTechnique({ name: 'Kimura from side control' });
+    await db.techniques.bulkAdd([techniqueA, techniqueB]);
+    const session = makeSession({
+      activityId: activity.id,
+      durationMin: 60,
+      rpe: 5,
+      grappling: { content: [], partners: [] },
+    });
+    await db.sessions.add(session);
+    const logA = await createTechniqueLog({
+      techniqueId: techniqueA.id,
+      sessionId: session.id,
+      date: session.date,
+      text: 'Setup',
+    });
+    await createTechniqueLog({
+      techniqueId: techniqueB.id,
+      sessionId: session.id,
+      date: session.date,
+    });
+
+    render(
+      <MemoryRouter initialEntries={[`/sessions/${session.id}/edit`]}>
+        <Routes>
+          <Route path="/sessions/:id/edit" element={<EditSessionPage />} />
+          <Route path="/sessions/:id" element={<p>Détail</p>} />
+        </Routes>
+      </MemoryRouter>,
+    );
+
+    expect(await screen.findByText(techniqueA.name)).toBeInTheDocument();
+    expect(screen.getByText(techniqueB.name)).toBeInTheDocument();
+
+    const user = userEvent.setup();
+    await user.click(screen.getByRole('button', { name: `Retirer ${techniqueB.name}` }));
+    await user.click(screen.getByRole('button', { name: 'Mettre à jour' }));
+
+    expect(await screen.findByText('Détail')).toBeInTheDocument();
+    const logs = await db.techniqueLogs.where('sessionId').equals(session.id).toArray();
+    expect(logs).toHaveLength(1);
+    expect(logs[0]?.id).toBe(logA.id);
   });
 });

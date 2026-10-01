@@ -47,7 +47,7 @@ Read: DATA_MODEL (Backup format), SECURITY (import rows + checklist), SPEC §4.6
 
 Done when: round-trip test (export → wipe → import = identical); malicious-input tests (bad JSON, >25 MB, wrong types, huge strings, `__proto__`, future version, orphans); `security-check` run and clean.
 
-### [ ] 5. Grappling block + quick technique creation
+### [x] 5. Grappling block + quick technique creation
 
 Read: SPEC §4.1 (grappling block), DOMAIN (Grappling).
 

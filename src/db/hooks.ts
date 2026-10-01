@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import type { Activity, Session, Settings } from '@/domain/schemas';
+import type { Activity, Session, Settings, Technique, TechniqueLog } from '@/domain/schemas';
 import { db } from './db';
 import { getSettings } from './metaRepo';
 
@@ -13,6 +13,17 @@ export function useSessions(): Session[] | undefined {
 
 export function useSession(id: string | undefined): Session | undefined {
   return useLiveQuery(() => (id ? db.sessions.get(id) : undefined), [id]);
+}
+
+export function useTechniques(): Technique[] | undefined {
+  return useLiveQuery(() => db.techniques.toArray(), []);
+}
+
+export function useSessionTechniqueLogs(sessionId: string | undefined): TechniqueLog[] | undefined {
+  return useLiveQuery(
+    () => (sessionId ? db.techniqueLogs.where('sessionId').equals(sessionId).toArray() : []),
+    [sessionId],
+  );
 }
 
 export function useLastExportAt(): string | null | undefined {

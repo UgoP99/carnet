@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useActivities, useSession, useSessions } from '@/db/hooks';
+import { useActivities, useSession, useSessions, useTechniques } from '@/db/hooks';
 import { clearSessionDraft, getSessionDraft, setSessionDraft } from '@/db/metaRepo';
 import { createSession } from '@/db/sessionRepo';
+import { syncSessionTechniqueLogs } from '@/db/techniqueLogRepo';
 import { todayLocal } from '@/lib/dates';
 import { SessionForm, sessionFormValuesSchema, sessionToFormValues } from './SessionForm';
 import type { SessionFormValues } from './SessionForm';
@@ -12,6 +13,7 @@ export function NewSessionPage() {
   const [searchParams] = useSearchParams();
   const activities = useActivities();
   const sessions = useSessions();
+  const techniques = useTechniques();
   const fromSession = useSession(searchParams.get('from') ?? undefined);
   const [initial, setInitial] = useState<SessionFormValues>();
   /** Chains draft writes so a later `clearSessionDraft()` can await them and always win the race. */
@@ -32,7 +34,11 @@ export function NewSessionPage() {
         if (!fromSession) return;
         setInitial(
           sessionToFormValues(
-            { activityId: fromSession.activityId, durationMin: fromSession.durationMin },
+            {
+              activityId: fromSession.activityId,
+              durationMin: fromSession.durationMin,
+              grappling: fromSession.grappling,
+            },
             today,
           ),
         );
@@ -61,7 +67,7 @@ export function NewSessionPage() {
     void loadInitial();
   }, [initial, sessions, fromParam, fromSession, activityParam, dateParam]);
 
-  if (!activities || !sessions || !initial) return null;
+  if (!activities || !sessions || !techniques || !initial) return null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -69,13 +75,19 @@ export function NewSessionPage() {
       <SessionForm
         activities={activities}
         sessions={sessions}
+        techniques={techniques}
         initial={initial}
         submitLabel="Enregistrer"
         onValuesChange={(values) => {
           draftWriteRef.current = draftWriteRef.current.then(() => setSessionDraft(values));
         }}
-        onSubmit={async (input) => {
+        onSubmit={async (input, techniqueLogs) => {
           const created = await createSession(input);
+          await syncSessionTechniqueLogs(
+            created.id,
+            created.date,
+            techniqueLogs.map((l) => ({ id: l.logId, techniqueId: l.techniqueId, text: l.text })),
+          );
           await draftWriteRef.current;
           await clearSessionDraft();
           void navigate(`/sessions/${created.id}`);

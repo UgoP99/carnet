@@ -1,76 +1,45 @@
 import { useEffect, useRef, useState } from 'react';
-import { z } from 'zod';
 import { mostUsedActivities } from '@/domain/activityUsage';
-import { ENERGY_LABELS } from '@/domain/labels';
 import {
-  painEntrySchema,
   sessionInputSchema,
   type Activity,
-  type PainEntry,
   type Session,
   type SessionInput,
+  type Technique,
 } from '@/domain/schemas';
 import { Button } from '@/ui/Button';
 import { Chips } from '@/ui/Chips';
 import { Field } from '@/ui/Field';
-import { RpeInput } from '@/ui/RpeInput';
+import { GrapplingSection } from './GrapplingSection';
 import { PainsField } from './PainsField';
+import { SessionBaseFields } from './SessionBaseFields';
+import type { SessionFormValues, TechniqueLogDraft } from './sessionFormValues';
 
-export interface SessionFormValues {
-  activityId: string;
-  date: string;
-  startTime: string;
-  durationMin: string;
-  rpe: number | undefined;
-  energy: number | undefined;
-  pains: PainEntry[];
-  notes: string;
-}
+export { sessionFormValuesSchema, sessionToFormValues } from './sessionFormValues';
+export type {
+  GrapplingFormValues,
+  SessionDefaults,
+  SessionFormValues,
+  TechniqueLogDraft,
+} from './sessionFormValues';
 
-/** A Session (or partial defaults) with every property allowed to be `undefined`. */
-export type SessionDefaults = { [K in keyof Session]?: Session[K] | undefined };
-
-/** Validates a persisted draft (raw UI state, not a Session) before it's trusted. */
-export const sessionFormValuesSchema = z.object({
-  activityId: z.string(),
-  date: z.string(),
-  startTime: z.string(),
-  durationMin: z.string(),
-  rpe: z.union([z.number(), z.undefined()]),
-  energy: z.union([z.number(), z.undefined()]),
-  pains: z.array(painEntrySchema),
-  notes: z.string(),
-});
-
-const DURATION_PRESETS = [45, 60, 75, 90, 120];
 const inputClass =
   'min-h-11 rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-900 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100';
-
-export function sessionToFormValues(session: SessionDefaults, today: string): SessionFormValues {
-  return {
-    activityId: session.activityId ?? '',
-    date: session.date ?? today,
-    startTime: session.startTime ?? '',
-    durationMin: session.durationMin !== undefined ? String(session.durationMin) : '',
-    rpe: session.rpe,
-    energy: session.energy,
-    pains: session.pains ?? [],
-    notes: session.notes ?? '',
-  };
-}
 
 interface SessionFormProps {
   activities: Activity[];
   sessions: Session[];
+  techniques: Technique[];
   initial: SessionFormValues;
   submitLabel: string;
-  onSubmit: (input: SessionInput) => Promise<void>;
+  onSubmit: (input: SessionInput, techniqueLogs: TechniqueLogDraft[]) => Promise<void>;
   onValuesChange?: (values: SessionFormValues) => void;
 }
 
 export function SessionForm({
   activities,
   sessions,
+  techniques,
   initial,
   submitLabel,
   onSubmit,
@@ -86,6 +55,11 @@ export function SessionForm({
   const overflow = activities.filter(
     (a) => !a.archived && !topActivities.some((t) => t.id === a.id),
   );
+
+  const isGrappling = activities.find((a) => a.id === values.activityId)?.category === 'grappling';
+  const knownPartners = Array.from(
+    new Set(sessions.flatMap((s) => s.grappling?.partners ?? [])),
+  ).sort((a, b) => a.localeCompare(b, 'fr'));
 
   const onValuesChangeRef = useRef(onValuesChange);
   useEffect(() => {
@@ -112,6 +86,19 @@ export function SessionForm({
       energy: values.energy,
       pains: values.pains,
       notes: values.notes || undefined,
+      grappling: isGrappling
+        ? {
+            attire: values.grappling.attire,
+            content: values.grappling.content,
+            sparringRounds: values.grappling.sparringRounds
+              ? Number(values.grappling.sparringRounds)
+              : undefined,
+            roundMin: values.grappling.roundMin ? Number(values.grappling.roundMin) : undefined,
+            subsLanded: values.grappling.subsLanded,
+            subsConceded: values.grappling.subsConceded,
+            partners: values.grappling.partners,
+          }
+        : undefined,
     };
     const result = sessionInputSchema.safeParse(raw);
     if (!result.success) {
@@ -126,7 +113,7 @@ export function SessionForm({
     setErrors({});
     setSubmitError(undefined);
     try {
-      await onSubmit(result.data);
+      await onSubmit(result.data, isGrappling ? values.techniqueLogs : []);
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Erreur inattendue.');
     }
@@ -172,76 +159,7 @@ export function SessionForm({
         </div>
       </Field>
 
-      <Field label="Date" htmlFor="session-date" error={errors.date}>
-        <input
-          id="session-date"
-          type="date"
-          enterKeyHint="next"
-          value={values.date}
-          onChange={(e) => {
-            update('date', e.target.value);
-          }}
-          className={inputClass}
-        />
-      </Field>
-
-      <Field label="Heure de début (optionnel)" htmlFor="session-start-time">
-        <input
-          id="session-start-time"
-          type="time"
-          value={values.startTime}
-          onChange={(e) => {
-            update('startTime', e.target.value);
-          }}
-          className={inputClass}
-        />
-      </Field>
-
-      <Field label="Durée (min)" htmlFor="session-duration" error={errors.durationMin}>
-        <div className="flex flex-col gap-2">
-          <Chips
-            aria-label="Durée (préréglages)"
-            options={DURATION_PRESETS.map((p) => ({ value: String(p), label: String(p) }))}
-            value={values.durationMin ? [values.durationMin] : []}
-            onChange={(v) => {
-              update('durationMin', v[0] ?? '');
-            }}
-          />
-          <input
-            id="session-duration"
-            type="number"
-            inputMode="numeric"
-            min={1}
-            max={600}
-            value={values.durationMin}
-            onChange={(e) => {
-              update('durationMin', e.target.value);
-            }}
-            className={`${inputClass} w-24`}
-          />
-        </div>
-      </Field>
-
-      <Field label="Intensité (RPE)" htmlFor="session-rpe" error={errors.rpe}>
-        <RpeInput
-          value={values.rpe}
-          onChange={(n) => {
-            update('rpe', n);
-          }}
-          label="Intensité (RPE)"
-        />
-      </Field>
-
-      <Field label="Énergie avant séance (optionnel)" htmlFor="session-energy">
-        <Chips
-          aria-label="Énergie avant séance"
-          options={Object.entries(ENERGY_LABELS).map(([v, label]) => ({ value: v, label }))}
-          value={values.energy !== undefined ? [String(values.energy)] : []}
-          onChange={(v) => {
-            update('energy', v[0] ? Number(v[0]) : undefined);
-          }}
-        />
-      </Field>
+      <SessionBaseFields values={values} errors={errors} update={update} />
 
       <PainsField
         pains={values.pains}
@@ -249,6 +167,21 @@ export function SessionForm({
           update('pains', pains);
         }}
       />
+
+      {isGrappling && (
+        <GrapplingSection
+          value={values.grappling}
+          onChange={(grappling) => {
+            update('grappling', grappling);
+          }}
+          techniqueLogs={values.techniqueLogs}
+          onTechniqueLogsChange={(techniqueLogs) => {
+            update('techniqueLogs', techniqueLogs);
+          }}
+          techniques={techniques}
+          knownPartners={knownPartners}
+        />
+      )}
 
       <Field label="Notes (optionnel)" htmlFor="session-notes" error={errors.notes}>
         <textarea
