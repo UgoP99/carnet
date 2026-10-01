@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { loadForWeek, sessionLoad, trend, weeklyTotals } from './load';
+import {
+  dailyLoads,
+  loadForWeek,
+  minutesByActivity,
+  sessionLoad,
+  trend,
+  weeklyLoadByCategory,
+  weeklyTotals,
+} from './load';
 import type { Activity, Session } from './schemas';
 
 const ts = new Date().toISOString();
@@ -103,5 +111,79 @@ describe('trend', () => {
 
   it('divides by the mean including zero weeks', () => {
     expect(trend(100, [100, 100, 0, 0])).toBe(2);
+  });
+});
+
+describe('weeklyLoadByCategory', () => {
+  it('breaks load down by category for each requested week', () => {
+    const grappling = activity({ id: 'act-1', category: 'grappling' });
+    const strength = activity({ id: 'act-2', category: 'strength' });
+    const sessions = [
+      session({ id: 's1', activityId: 'act-1', date: '2026-09-28', durationMin: 60, rpe: 5 }), // W40
+      session({ id: 's2', activityId: 'act-2', date: '2026-10-05', durationMin: 30, rpe: 6 }), // W41
+    ];
+
+    const result = weeklyLoadByCategory(sessions, [grappling, strength], ['2026-W40', '2026-W41']);
+
+    expect(result).toEqual([
+      { weekKey: '2026-W40', byCategory: { grappling: 300 }, total: 300 },
+      { weekKey: '2026-W41', byCategory: { strength: 180 }, total: 180 },
+    ]);
+  });
+
+  it('returns zeroed entries for weeks with no sessions', () => {
+    expect(weeklyLoadByCategory([], [], ['2026-W40'])).toEqual([
+      { weekKey: '2026-W40', byCategory: {}, total: 0 },
+    ]);
+  });
+
+  it('spans an ISO year boundary week', () => {
+    const grappling = activity({ id: 'act-1', category: 'grappling' });
+    const sessions = [
+      session({ id: 's1', activityId: 'act-1', date: '2027-01-01', durationMin: 60, rpe: 5 }), // 2026-W53
+    ];
+    expect(weeklyLoadByCategory(sessions, [grappling], ['2026-W53'])).toEqual([
+      { weekKey: '2026-W53', byCategory: { grappling: 300 }, total: 300 },
+    ]);
+  });
+});
+
+describe('minutesByActivity', () => {
+  it('sums minutes per activity, sorted descending', () => {
+    const grappling = activity({ id: 'act-1', name: 'JJB' });
+    const strength = activity({ id: 'act-2', name: 'Muscu' });
+    const sessions = [
+      session({ activityId: 'act-1', durationMin: 30 }),
+      session({ activityId: 'act-1', durationMin: 30 }),
+      session({ activityId: 'act-2', durationMin: 90 }),
+    ];
+
+    expect(minutesByActivity(sessions, [grappling, strength])).toEqual([
+      { activity: strength, minutes: 90 },
+      { activity: grappling, minutes: 60 },
+    ]);
+  });
+
+  it('omits activities with no sessions', () => {
+    const grappling = activity({ id: 'act-1' });
+    expect(minutesByActivity([], [grappling])).toEqual([]);
+  });
+});
+
+describe('dailyLoads', () => {
+  it('sums load per calendar day', () => {
+    const sessions = [
+      session({ date: '2026-09-28', durationMin: 60, rpe: 5 }),
+      session({ date: '2026-09-28', durationMin: 30, rpe: 4 }),
+      session({ date: '2026-09-29', durationMin: 20, rpe: 6 }),
+    ];
+    expect(dailyLoads(sessions)).toEqual({
+      '2026-09-28': 60 * 5 + 30 * 4,
+      '2026-09-29': 20 * 6,
+    });
+  });
+
+  it('returns an empty object for no sessions', () => {
+    expect(dailyLoads([])).toEqual({});
   });
 });

@@ -15,6 +15,21 @@ export const activityCategoryLabels: Record<ActivityCategory, string> = {
   mobility: 'Mobilité',
   other: 'Autre',
 };
+/** Fixed per-category colors for charts (independent of per-activity user colors). Tailwind scans source for class names — no string concatenation. */
+export const activityCategoryFillClasses: Record<ActivityCategory, string> = {
+  grappling: 'fill-violet-500',
+  strength: 'fill-sky-500',
+  conditioning: 'fill-amber-500',
+  mobility: 'fill-emerald-500',
+  other: 'fill-slate-400',
+};
+export const activityCategoryDotClasses: Record<ActivityCategory, string> = {
+  grappling: 'bg-violet-500',
+  strength: 'bg-sky-500',
+  conditioning: 'bg-amber-500',
+  mobility: 'bg-emerald-500',
+  other: 'bg-slate-400',
+};
 
 export const ACTIVITY_COLORS = [
   'red',

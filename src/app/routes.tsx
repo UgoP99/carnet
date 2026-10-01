@@ -1,4 +1,5 @@
 import { Construction } from 'lucide-react';
+import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { ActivitiesSettings } from '@/features/settings/ActivitiesSettings';
 import { Backup } from '@/features/settings/Backup';
@@ -17,6 +18,10 @@ import { WeekView } from '@/features/week/WeekView';
 import { EmptyState } from '@/ui/EmptyState';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
+
+const StatsView = lazy(() =>
+  import('@/features/stats/StatsView').then((m) => ({ default: m.StatsView })),
+);
 
 function Placeholder({ title }: { title: string }) {
   return <EmptyState icon={Construction} title={title} description="Écran à venir." />;
@@ -37,7 +42,14 @@ export function AppRoutes() {
         <Route path="techniques/:id/edit" element={<EditTechniquePage />} />
         <Route path="plans" element={<Placeholder title="Plans de jeu" />} />
         <Route path="plans/:id" element={<Placeholder title="Plan de jeu" />} />
-        <Route path="stats" element={<Placeholder title="Stats" />} />
+        <Route
+          path="stats"
+          element={
+            <Suspense fallback={null}>
+              <StatsView />
+            </Suspense>
+          }
+        />
         <Route path="search" element={<Placeholder title="Recherche" />} />
         <Route path="settings" element={<Settings />} />
         <Route path="settings/activities" element={<ActivitiesSettings />} />

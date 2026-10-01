@@ -1,5 +1,6 @@
+import type { LocalDate } from '@/lib/dates';
 import type { ExerciseMetric } from './labels';
-import type { SetEntry } from './schemas';
+import type { ExerciseEntry, SetEntry } from './schemas';
 
 /** Short human-readable summary of a set, e.g. "100kg × 5" or "45s". */
 export function formatSet(set: SetEntry, metric: ExerciseMetric): string {
@@ -52,4 +53,24 @@ function scoreFor(set: SetEntry, metric: ExerciseMetric): number | null {
     case 'distance':
       return set.distanceM ?? null;
   }
+}
+
+export interface E1rmPoint {
+  date: LocalDate;
+  sessionId: string;
+  value: number;
+}
+
+/**
+ * Best e1RM per entry (one point per session), sorted by date ascending.
+ * Entries with no eligible set (no valid e1RM) are skipped.
+ */
+export function e1rmProgression(entries: ExerciseEntry[]): E1rmPoint[] {
+  const points: E1rmPoint[] = [];
+  for (const entry of entries) {
+    const values = entry.sets.map(e1rm).filter((v): v is number => v !== null);
+    if (values.length === 0) continue;
+    points.push({ date: entry.date, sessionId: entry.sessionId, value: Math.max(...values) });
+  }
+  return points.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
 }

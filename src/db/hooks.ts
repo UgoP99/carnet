@@ -9,7 +9,7 @@ import type {
   TechniqueLog,
 } from '@/domain/schemas';
 import { db } from './db';
-import { getLastEntry, listEntriesForSession } from './exerciseEntryRepo';
+import { getLastEntry, listEntriesForExercise, listEntriesForSession } from './exerciseEntryRepo';
 import { getSettings } from './metaRepo';
 
 export function useActivities(): Activity[] | undefined {
@@ -60,6 +60,12 @@ export function useSessionExerciseEntries(
   sessionId: string | undefined,
 ): ExerciseEntry[] | undefined {
   return useLiveQuery(() => (sessionId ? listEntriesForSession(sessionId) : []), [sessionId]);
+}
+
+export function useExerciseEntriesForExercise(
+  exerciseId: string | undefined,
+): ExerciseEntry[] | undefined {
+  return useLiveQuery(() => (exerciseId ? listEntriesForExercise(exerciseId) : []), [exerciseId]);
 }
 
 export function useLastExerciseEntry(

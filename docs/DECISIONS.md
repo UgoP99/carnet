@@ -88,3 +88,9 @@ Auto-filling as soon as an exercise is picked risks silently overwriting a value
 
 D29 — 2026-10-01 — Settings > Exercices lets you rename, archive and delete (if unreferenced), not edit metric/muscle group
 SPEC §4.6 lists "add/rename/archive" for exercises; metric and muscle group are set once at creation — changing them later could silently invalidate the shape of existing ExerciseEntries' sets, so that's out of scope for v1.
+
+D30 — 2026-10-01 — Stats: fixed per-category chart colors, independent of per-activity colors
+SPEC §4.3 asks for a stacked bar by category, but colors are only defined per-activity (user-configurable) in `labels.ts`. Added a second, fixed `ActivityCategory → color` map (`activityCategoryFillClasses`/`activityCategoryDotClasses`) so the 12-week chart's legend stays stable even if the user recolors an activity.
+
+D31 — 2026-10-01 — Stats windows are fixed (trailing 12 weeks ending this week; current month for the heatmap, navigable), no week navigation like Semaine
+SPEC §4.3 doesn't specify navigation for the 12-week charts; only the calendar heatmap needs month navigation to be useful. Keeps the view simpler and matches "last 12 weeks" wording literally.

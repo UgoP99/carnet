@@ -1,4 +1,4 @@
-import { Calendar, Plus } from 'lucide-react';
+import { BarChart3, Calendar, Plus } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { Link, useSearchParams } from 'react-router';
 import { useActivities, useSessions, useSettings } from '@/db/hooks';
@@ -57,7 +57,16 @@ export function WeekView() {
   return (
     <div className="flex flex-col gap-4 pb-20">
       <BackupReminderBanner />
-      <h1 className="text-xl font-semibold">Semaine</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Semaine</h1>
+        <Link
+          to="/stats"
+          className="flex min-h-11 items-center gap-1.5 rounded-lg px-2 text-sm font-medium text-sky-600 hover:bg-sky-50 dark:text-sky-400 dark:hover:bg-sky-950"
+        >
+          <BarChart3 className="h-4 w-4" aria-hidden="true" />
+          Stats
+        </Link>
+      </div>
 
       <WeekNav weekKey={weekKey} onChange={goToWeek} />
 

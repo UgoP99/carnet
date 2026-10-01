@@ -14,6 +14,15 @@ export async function listEntriesForSession(sessionId: string): Promise<Exercise
   return entries.sort((a, b) => a.order - b.order);
 }
 
+/** All entries for an exercise, sorted by date ascending — for progression charts. */
+export async function listEntriesForExercise(exerciseId: string): Promise<ExerciseEntry[]> {
+  const entries = await db.exerciseEntries
+    .where('[exerciseId+date]')
+    .between([exerciseId, Dexie.minKey], [exerciseId, Dexie.maxKey])
+    .toArray();
+  return entries.sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0));
+}
+
 /** Most recent entry for an exercise, excluding the given session — "Last time" lookup. */
 export async function getLastEntry(
   exerciseId: string,

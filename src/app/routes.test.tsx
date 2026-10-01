@@ -6,7 +6,6 @@ import { AppRoutes } from './routes';
 const ROUTES: { path: string; heading: string }[] = [
   { path: '/plans', heading: 'Plans de jeu' },
   { path: '/plans/abc', heading: 'Plan de jeu' },
-  { path: '/stats', heading: 'Stats' },
   { path: '/search', heading: 'Recherche' },
 ];
 

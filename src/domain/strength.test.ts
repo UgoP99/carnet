@@ -1,9 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { bestSet, e1rm, formatSet } from './strength';
-import type { SetEntry } from './schemas';
+import { bestSet, e1rm, e1rmProgression, formatSet } from './strength';
+import type { ExerciseEntry, SetEntry } from './schemas';
+
+const ts = new Date().toISOString();
 
 function set(overrides: Partial<SetEntry>): SetEntry {
   return { warmup: false, ...overrides };
+}
+
+function entry(overrides: Partial<ExerciseEntry>): ExerciseEntry {
+  return {
+    id: 'entry-1',
+    sessionId: 'session-1',
+    exerciseId: 'ex-1',
+    date: '2026-09-28',
+    order: 0,
+    sets: [set({ weightKg: 100, reps: 5 })],
+    createdAt: ts,
+    updatedAt: ts,
+    ...overrides,
+  };
 }
 
 describe('e1rm', () => {
@@ -79,5 +95,36 @@ describe('formatSet', () => {
 
   it('formats a distance set', () => {
     expect(formatSet(set({ distanceM: 200 }), 'distance')).toBe('200m');
+  });
+});
+
+describe('e1rmProgression', () => {
+  it('returns the best e1RM per entry, sorted by date ascending', () => {
+    const entries = [
+      entry({ date: '2026-09-28', sessionId: 's2', sets: [set({ weightKg: 110, reps: 5 })] }),
+      entry({ date: '2026-09-14', sessionId: 's1', sets: [set({ weightKg: 100, reps: 5 })] }),
+    ];
+    expect(e1rmProgression(entries)).toEqual([
+      { date: '2026-09-14', sessionId: 's1', value: 116.5 },
+      { date: '2026-09-28', sessionId: 's2', value: 128.5 },
+    ]);
+  });
+
+  it('picks the highest e1RM among several sets of the same entry', () => {
+    const entries = [
+      entry({
+        sets: [set({ weightKg: 80, reps: 8 }), set({ weightKg: 100, reps: 5 })],
+      }),
+    ];
+    expect(e1rmProgression(entries)[0]!.value).toBe(e1rm(set({ weightKg: 100, reps: 5 })));
+  });
+
+  it('skips entries with no eligible set', () => {
+    const entries = [entry({ sets: [set({ weightKg: 100, reps: 5, warmup: true })] })];
+    expect(e1rmProgression(entries)).toEqual([]);
+  });
+
+  it('returns an empty array for no entries', () => {
+    expect(e1rmProgression([])).toEqual([]);
   });
 });

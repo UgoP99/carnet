@@ -84,7 +84,7 @@ Read: SPEC §4.3 (Semaine), DATA_MODEL (derived values, Meta.settings).
 
 Done when: totals match domain tests; weeks spanning months/years display correctly; empty week has a friendly empty state.
 
-### [ ] 9. Stats
+### [x] 9. Stats
 
 Read: SPEC §4.3 (Stats).
 
