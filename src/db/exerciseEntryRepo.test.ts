@@ -8,6 +8,7 @@ import {
   deleteExerciseEntry,
   getLastEntry,
   listEntriesForSession,
+  syncSessionExerciseEntries,
   updateExerciseEntry,
 } from './exerciseEntryRepo';
 
@@ -111,6 +112,67 @@ describe('getLastEntry', () => {
 
   it('returns undefined when no prior entry exists', async () => {
     expect(await getLastEntry(newId())).toBeUndefined();
+  });
+});
+
+describe('syncSessionExerciseEntries', () => {
+  it('creates, updates and deletes entries to match the drafts, in order', async () => {
+    const session = await makeStrengthSession();
+    const exerciseA = newId();
+    const exerciseB = newId();
+    const exerciseC = newId();
+
+    const kept = await createExerciseEntry({
+      sessionId: session.id,
+      exerciseId: exerciseA,
+      date: session.date,
+      order: 0,
+      sets: [{ reps: 5, weightKg: 100, warmup: false }],
+    });
+    const removed = await createExerciseEntry({
+      sessionId: session.id,
+      exerciseId: exerciseB,
+      date: session.date,
+      order: 1,
+      sets: [{ reps: 8, weightKg: 60, warmup: false }],
+    });
+
+    await syncSessionExerciseEntries(session.id, '2026-10-01', [
+      { id: undefined, exerciseId: exerciseC, order: 0, sets: [{ reps: 10, warmup: false }] },
+      {
+        id: kept.id,
+        exerciseId: exerciseA,
+        order: 1,
+        sets: [{ reps: 3, weightKg: 110, warmup: false }],
+      },
+    ]);
+
+    const entries = await listEntriesForSession(session.id);
+    expect(entries).toHaveLength(2);
+    expect(await db.exerciseEntries.get(removed.id)).toBeUndefined();
+    expect(entries[0]).toMatchObject({ exerciseId: exerciseC, order: 0 });
+    expect(entries[1]).toMatchObject({
+      id: kept.id,
+      exerciseId: exerciseA,
+      order: 1,
+      date: '2026-10-01',
+    });
+    expect(entries[1]?.sets[0]?.weightKg).toBe(110);
+  });
+
+  it('removes all entries when given an empty draft list', async () => {
+    const session = await makeStrengthSession();
+    await createExerciseEntry({
+      sessionId: session.id,
+      exerciseId: newId(),
+      date: session.date,
+      order: 0,
+      sets: [{ reps: 5, weightKg: 100, warmup: false }],
+    });
+
+    await syncSessionExerciseEntries(session.id, session.date, []);
+
+    expect(await listEntriesForSession(session.id)).toHaveLength(0);
   });
 });
 

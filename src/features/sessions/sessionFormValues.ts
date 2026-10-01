@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EXERCISE_METRICS, type ExerciseMetric } from '@/domain/labels';
 import { ATTIRES, SESSION_CONTENTS } from '@/domain/labels.grappling';
 import {
   painEntrySchema,
@@ -25,6 +26,25 @@ export interface TechniqueLogDraft {
   text: string;
 }
 
+/** One set being edited; numeric fields as strings so inputs can be empty. */
+export interface SetDraft {
+  reps: string;
+  weightKg: string;
+  durationSec: string;
+  distanceM: string;
+  rir: string;
+  warmup: boolean;
+}
+
+/** An exercise attached to this session: existing (has `entryId`) or newly added. */
+export interface ExerciseEntryDraft {
+  entryId: string | undefined;
+  exerciseId: string;
+  exerciseName: string;
+  metric: ExerciseMetric;
+  sets: SetDraft[];
+}
+
 export interface SessionFormValues {
   activityId: string;
   date: string;
@@ -36,6 +56,7 @@ export interface SessionFormValues {
   notes: string;
   grappling: GrapplingFormValues;
   techniqueLogs: TechniqueLogDraft[];
+  exerciseEntries: ExerciseEntryDraft[];
 }
 
 /** A Session (or partial defaults) with every property allowed to be `undefined`. */
@@ -58,6 +79,23 @@ const techniqueLogDraftSchema = z.object({
   text: z.string(),
 });
 
+const setDraftSchema = z.object({
+  reps: z.string(),
+  weightKg: z.string(),
+  durationSec: z.string(),
+  distanceM: z.string(),
+  rir: z.string(),
+  warmup: z.boolean(),
+});
+
+const exerciseEntryDraftSchema = z.object({
+  entryId: z.union([z.string(), z.undefined()]),
+  exerciseId: z.string(),
+  exerciseName: z.string(),
+  metric: z.enum(EXERCISE_METRICS),
+  sets: z.array(setDraftSchema),
+});
+
 /** Validates a persisted draft (raw UI state, not a Session) before it's trusted. */
 export const sessionFormValuesSchema = z.object({
   activityId: z.string(),
@@ -70,6 +108,7 @@ export const sessionFormValuesSchema = z.object({
   notes: z.string(),
   grappling: grapplingFormValuesSchema,
   techniqueLogs: z.array(techniqueLogDraftSchema),
+  exerciseEntries: z.array(exerciseEntryDraftSchema),
 });
 
 const emptyGrappling: GrapplingFormValues = {
@@ -86,6 +125,7 @@ export function sessionToFormValues(
   session: SessionDefaults,
   today: string,
   techniqueLogs: TechniqueLogDraft[] = [],
+  exerciseEntries: ExerciseEntryDraft[] = [],
 ): SessionFormValues {
   const g = session.grappling;
   return {
@@ -109,5 +149,6 @@ export function sessionToFormValues(
         }
       : emptyGrappling,
     techniqueLogs,
+    exerciseEntries,
   };
 }

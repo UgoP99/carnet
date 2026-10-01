@@ -72,3 +72,63 @@ export async function updateExerciseEntry(
 export async function deleteExerciseEntry(id: string): Promise<void> {
   await db.exerciseEntries.delete(id);
 }
+
+export interface ExerciseEntryDraft {
+  id: string | undefined;
+  exerciseId: string;
+  order: number;
+  sets: ExerciseEntry['sets'];
+}
+
+/**
+ * Replaces a session's ExerciseEntries with `drafts`: creates the new ones, updates the
+ * matched ones (by `id`), deletes the ones no longer present. One transaction.
+ */
+export async function syncSessionExerciseEntries(
+  sessionId: string,
+  date: string,
+  drafts: ExerciseEntryDraft[],
+): Promise<void> {
+  await db.transaction('rw', db.exerciseEntries, async () => {
+    const existing = await db.exerciseEntries.where('sessionId').equals(sessionId).toArray();
+    const draftIds = new Set(
+      drafts.map((d) => d.id).filter((id): id is string => id !== undefined),
+    );
+    const now = new Date().toISOString();
+
+    for (const entry of existing) {
+      if (!draftIds.has(entry.id)) {
+        await db.exerciseEntries.delete(entry.id);
+      }
+    }
+
+    for (const draft of drafts) {
+      const current = draft.id ? existing.find((e) => e.id === draft.id) : undefined;
+      if (current) {
+        await db.exerciseEntries.put(
+          exerciseEntrySchema.parse({
+            ...current,
+            exerciseId: draft.exerciseId,
+            order: draft.order,
+            sets: draft.sets,
+            date,
+            updatedAt: now,
+          }),
+        );
+      } else {
+        await db.exerciseEntries.add(
+          exerciseEntrySchema.parse({
+            id: newId(),
+            sessionId,
+            exerciseId: draft.exerciseId,
+            date,
+            order: draft.order,
+            sets: draft.sets,
+            createdAt: now,
+            updatedAt: now,
+          }),
+        );
+      }
+    }
+  });
+}

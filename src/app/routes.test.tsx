@@ -10,7 +10,6 @@ const ROUTES: { path: string; heading: string }[] = [
   { path: '/stats', heading: 'Stats' },
   { path: '/search', heading: 'Recherche' },
   { path: '/settings/activities', heading: 'Activités' },
-  { path: '/settings/exercises', heading: 'Exercices' },
   { path: '/settings/goals', heading: 'Objectifs' },
 ];
 
@@ -34,6 +33,7 @@ describe('AppRoutes', () => {
     { path: '/techniques/abc', heading: 'Technique' },
     { path: '/techniques/abc/edit', heading: 'Modifier la technique' },
     { path: '/settings', heading: 'Réglages' },
+    { path: '/settings/exercises', heading: 'Exercices' },
     { path: '/settings/backup', heading: 'Sauvegarde' },
   ];
 

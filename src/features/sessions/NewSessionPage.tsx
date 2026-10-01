@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
-import { useActivities, useSession, useSessions, useTechniques } from '@/db/hooks';
+import {
+  useActivities,
+  useExercises,
+  useSession,
+  useSessionExerciseEntries,
+  useSessions,
+  useTechniques,
+} from '@/db/hooks';
+import { syncSessionExerciseEntries } from '@/db/exerciseEntryRepo';
 import { clearSessionDraft, getSessionDraft, setSessionDraft } from '@/db/metaRepo';
 import { createSession } from '@/db/sessionRepo';
 import { syncSessionTechniqueLogs } from '@/db/techniqueLogRepo';
 import { todayLocal } from '@/lib/dates';
+import { exerciseEntriesToDrafts, exerciseEntryDraftsToRepoInput } from './exerciseEntryConversion';
 import { SessionForm, sessionFormValuesSchema, sessionToFormValues } from './SessionForm';
 import type { SessionFormValues } from './SessionForm';
 
@@ -14,7 +23,9 @@ export function NewSessionPage() {
   const activities = useActivities();
   const sessions = useSessions();
   const techniques = useTechniques();
+  const exercises = useExercises();
   const fromSession = useSession(searchParams.get('from') ?? undefined);
+  const fromExerciseEntries = useSessionExerciseEntries(searchParams.get('from') ?? undefined);
   const [initial, setInitial] = useState<SessionFormValues>();
   /** Chains draft writes so a later `clearSessionDraft()` can await them and always win the race. */
   const draftWriteRef = useRef<Promise<void>>(Promise.resolve());
@@ -24,14 +35,15 @@ export function NewSessionPage() {
   const fromParam = searchParams.get('from');
 
   useEffect(() => {
-    if (initial || sessions === undefined) return;
+    if (initial || sessions === undefined || exercises === undefined) return;
     const loadedSessions = sessions;
+    const loadedExercises = exercises;
 
     async function loadInitial() {
       const today = todayLocal();
 
       if (fromParam) {
-        if (!fromSession) return;
+        if (!fromSession || !fromExerciseEntries) return;
         setInitial(
           sessionToFormValues(
             {
@@ -40,6 +52,8 @@ export function NewSessionPage() {
               grappling: fromSession.grappling,
             },
             today,
+            [],
+            exerciseEntriesToDrafts(fromExerciseEntries, loadedExercises, false),
           ),
         );
         return;
@@ -65,9 +79,18 @@ export function NewSessionPage() {
     }
 
     void loadInitial();
-  }, [initial, sessions, fromParam, fromSession, activityParam, dateParam]);
+  }, [
+    initial,
+    sessions,
+    exercises,
+    fromParam,
+    fromSession,
+    fromExerciseEntries,
+    activityParam,
+    dateParam,
+  ]);
 
-  if (!activities || !sessions || !techniques || !initial) return null;
+  if (!activities || !sessions || !techniques || !exercises || !initial) return null;
 
   return (
     <div className="flex flex-col gap-4">
@@ -76,17 +99,23 @@ export function NewSessionPage() {
         activities={activities}
         sessions={sessions}
         techniques={techniques}
+        exercises={exercises}
         initial={initial}
         submitLabel="Enregistrer"
         onValuesChange={(values) => {
           draftWriteRef.current = draftWriteRef.current.then(() => setSessionDraft(values));
         }}
-        onSubmit={async (input, techniqueLogs) => {
+        onSubmit={async (input, techniqueLogs, exerciseEntries) => {
           const created = await createSession(input);
           await syncSessionTechniqueLogs(
             created.id,
             created.date,
             techniqueLogs.map((l) => ({ id: l.logId, techniqueId: l.techniqueId, text: l.text })),
+          );
+          await syncSessionExerciseEntries(
+            created.id,
+            created.date,
+            exerciseEntryDraftsToRepoInput(exerciseEntries),
           );
           await draftWriteRef.current;
           await clearSessionDraft();

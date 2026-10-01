@@ -3,6 +3,7 @@ import { mostUsedActivities } from '@/domain/activityUsage';
 import {
   sessionInputSchema,
   type Activity,
+  type Exercise,
   type Session,
   type SessionInput,
   type Technique,
@@ -13,13 +14,16 @@ import { Field } from '@/ui/Field';
 import { GrapplingSection } from './GrapplingSection';
 import { PainsField } from './PainsField';
 import { SessionBaseFields } from './SessionBaseFields';
-import type { SessionFormValues, TechniqueLogDraft } from './sessionFormValues';
+import type { ExerciseEntryDraft, SessionFormValues, TechniqueLogDraft } from './sessionFormValues';
+import { StrengthSection } from './StrengthSection';
 
 export { sessionFormValuesSchema, sessionToFormValues } from './sessionFormValues';
 export type {
+  ExerciseEntryDraft,
   GrapplingFormValues,
   SessionDefaults,
   SessionFormValues,
+  SetDraft,
   TechniqueLogDraft,
 } from './sessionFormValues';
 
@@ -30,9 +34,15 @@ interface SessionFormProps {
   activities: Activity[];
   sessions: Session[];
   techniques: Technique[];
+  exercises: Exercise[];
+  currentSessionId?: string;
   initial: SessionFormValues;
   submitLabel: string;
-  onSubmit: (input: SessionInput, techniqueLogs: TechniqueLogDraft[]) => Promise<void>;
+  onSubmit: (
+    input: SessionInput,
+    techniqueLogs: TechniqueLogDraft[],
+    exerciseEntries: ExerciseEntryDraft[],
+  ) => Promise<void>;
   onValuesChange?: (values: SessionFormValues) => void;
 }
 
@@ -40,6 +50,8 @@ export function SessionForm({
   activities,
   sessions,
   techniques,
+  exercises,
+  currentSessionId,
   initial,
   submitLabel,
   onSubmit,
@@ -56,7 +68,9 @@ export function SessionForm({
     (a) => !a.archived && !topActivities.some((t) => t.id === a.id),
   );
 
-  const isGrappling = activities.find((a) => a.id === values.activityId)?.category === 'grappling';
+  const activityCategory = activities.find((a) => a.id === values.activityId)?.category;
+  const isGrappling = activityCategory === 'grappling';
+  const isStrength = activityCategory === 'strength';
   const knownPartners = Array.from(
     new Set(sessions.flatMap((s) => s.grappling?.partners ?? [])),
   ).sort((a, b) => a.localeCompare(b, 'fr'));
@@ -113,7 +127,11 @@ export function SessionForm({
     setErrors({});
     setSubmitError(undefined);
     try {
-      await onSubmit(result.data, isGrappling ? values.techniqueLogs : []);
+      await onSubmit(
+        result.data,
+        isGrappling ? values.techniqueLogs : [],
+        isStrength ? values.exerciseEntries : [],
+      );
     } catch (err) {
       setSubmitError(err instanceof Error ? err.message : 'Erreur inattendue.');
     }
@@ -180,6 +198,17 @@ export function SessionForm({
           }}
           techniques={techniques}
           knownPartners={knownPartners}
+        />
+      )}
+
+      {isStrength && (
+        <StrengthSection
+          value={values.exerciseEntries}
+          onChange={(exerciseEntries) => {
+            update('exerciseEntries', exerciseEntries);
+          }}
+          exercises={exercises}
+          currentSessionId={currentSessionId}
         />
       )}
 

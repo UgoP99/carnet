@@ -2,6 +2,7 @@ import { Construction } from 'lucide-react';
 import { Route, Routes } from 'react-router';
 import { Backup } from '@/features/settings/Backup';
 import { BackupReminderBanner } from '@/features/settings/BackupReminderBanner';
+import { ExercisesSettings } from '@/features/settings/ExercisesSettings';
 import { Settings } from '@/features/settings/Settings';
 import { EditSessionPage } from '@/features/sessions/EditSessionPage';
 import { NewSessionPage } from '@/features/sessions/NewSessionPage';
@@ -46,7 +47,7 @@ export function AppRoutes() {
         <Route path="search" element={<Placeholder title="Recherche" />} />
         <Route path="settings" element={<Settings />} />
         <Route path="settings/activities" element={<Placeholder title="Activités" />} />
-        <Route path="settings/exercises" element={<Placeholder title="Exercices" />} />
+        <Route path="settings/exercises" element={<ExercisesSettings />} />
         <Route path="settings/goals" element={<Placeholder title="Objectifs" />} />
         <Route path="settings/backup" element={<Backup />} />
         <Route path="*" element={<NotFound />} />

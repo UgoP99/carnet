@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { bestSet, e1rm } from './strength';
+import { bestSet, e1rm, formatSet } from './strength';
 import type { SetEntry } from './schemas';
 
 function set(overrides: Partial<SetEntry>): SetEntry {
@@ -61,5 +61,23 @@ describe('bestSet', () => {
   it('returns null when no set is eligible', () => {
     expect(bestSet([set({ warmup: true })], 'weight_reps')).toBeNull();
     expect(bestSet([], 'reps')).toBeNull();
+  });
+});
+
+describe('formatSet', () => {
+  it('formats a weight_reps set', () => {
+    expect(formatSet(set({ weightKg: 100, reps: 5 }), 'weight_reps')).toBe('100kg × 5');
+  });
+
+  it('formats a reps set', () => {
+    expect(formatSet(set({ reps: 12 }), 'reps')).toBe('12 reps');
+  });
+
+  it('formats a time set', () => {
+    expect(formatSet(set({ durationSec: 45 }), 'time')).toBe('45s');
+  });
+
+  it('formats a distance set', () => {
+    expect(formatSet(set({ distanceM: 200 }), 'distance')).toBe('200m');
   });
 });

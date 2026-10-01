@@ -1,14 +1,18 @@
 import { useNavigate, useParams } from 'react-router';
 import {
   useActivities,
+  useExercises,
   useSession,
+  useSessionExerciseEntries,
   useSessionTechniqueLogs,
   useSessions,
   useTechniques,
 } from '@/db/hooks';
+import { syncSessionExerciseEntries } from '@/db/exerciseEntryRepo';
 import { updateSession } from '@/db/sessionRepo';
 import { syncSessionTechniqueLogs } from '@/db/techniqueLogRepo';
 import { todayLocal } from '@/lib/dates';
+import { exerciseEntriesToDrafts, exerciseEntryDraftsToRepoInput } from './exerciseEntryConversion';
 import { SessionForm, sessionToFormValues } from './SessionForm';
 import type { TechniqueLogDraft } from './SessionForm';
 
@@ -18,8 +22,10 @@ export function EditSessionPage() {
   const activities = useActivities();
   const sessions = useSessions();
   const techniques = useTechniques();
+  const exercises = useExercises();
   const session = useSession(id);
   const logs = useSessionTechniqueLogs(id);
+  const entries = useSessionExerciseEntries(id);
 
   const initialTechniqueLogs: TechniqueLogDraft[] | undefined =
     logs && techniques
@@ -34,16 +40,30 @@ export function EditSessionPage() {
   return (
     <div className="flex flex-col gap-4">
       <h1 className="text-xl font-semibold">Modifier la séance</h1>
-      {!activities || !sessions || !techniques || !session || !id || !initialTechniqueLogs ? (
+      {!activities ||
+      !sessions ||
+      !techniques ||
+      !exercises ||
+      !session ||
+      !id ||
+      !initialTechniqueLogs ||
+      !entries ? (
         <p className="text-sm text-slate-500 dark:text-slate-400">Chargement…</p>
       ) : (
         <SessionForm
           activities={activities}
           sessions={sessions}
           techniques={techniques}
-          initial={sessionToFormValues(session, todayLocal(), initialTechniqueLogs)}
+          exercises={exercises}
+          currentSessionId={id}
+          initial={sessionToFormValues(
+            session,
+            todayLocal(),
+            initialTechniqueLogs,
+            exerciseEntriesToDrafts(entries, exercises, true),
+          )}
           submitLabel="Mettre à jour"
-          onSubmit={async (input, techniqueLogs) => {
+          onSubmit={async (input, techniqueLogs, exerciseEntries) => {
             const updated = await updateSession(id, input);
             await syncSessionTechniqueLogs(
               id,
@@ -53,6 +73,11 @@ export function EditSessionPage() {
                 techniqueId: l.techniqueId,
                 text: l.text,
               })),
+            );
+            await syncSessionExerciseEntries(
+              id,
+              updated.date,
+              exerciseEntryDraftsToRepoInput(exerciseEntries),
             );
             void navigate(`/sessions/${id}`);
           }}

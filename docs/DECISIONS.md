@@ -76,3 +76,15 @@ Selecting both "submission" and "guard_pass" types narrows to either type (OR), 
 
 D25 — 2026-10-01 — Added `SafeLink` (`src/ui/SafeLink.tsx`) and `techniqueInputSchema` (`src/domain/schemas.ts`)
 `SafeLink` was referenced by `.claude/rules/ui.md` for external links but didn't exist yet — first feature needing one (technique video links); it re-validates with `parseHttpsUrl` and renders nothing on failure (defense in depth). `techniqueInputSchema` mirrors the existing `sessionInputSchema` pattern (`techniqueSchema.omit({id, archived, createdAt, updatedAt})`) so the create/edit form validates through the same Zod schema the DB uses, instead of the untyped `Omit` the repo used before.
+
+D26 — 2026-10-01 — Exercise reorder via ↑/↓ buttons, not drag-and-drop
+No DnD library in the stack (D7's "fewer deps" logic); swap-with-neighbor buttons are ≥44px, keyboard/VoiceOver-friendly, and sufficient for the handful of exercises in one session.
+
+D27 — 2026-10-01 — ExerciseEntries on a session are reconciled via `syncSessionExerciseEntries`, mirroring D21
+Same diff-by-id transaction pattern as `syncSessionTechniqueLogs`: create/update/delete in one `db.transaction`, driven by the form's draft list (`entryId` present = existing).
+
+D28 — 2026-10-01 — "Préremplir" copies the last entry's sets on tap, no auto-prefill
+Auto-filling as soon as an exercise is picked risks silently overwriting a value the user already started typing (e.g. from a duplicated session). An explicit button keeps the "Dernière fois" data visible without forcing it in.
+
+D29 — 2026-10-01 — Settings > Exercices lets you rename, archive and delete (if unreferenced), not edit metric/muscle group
+SPEC §4.6 lists "add/rename/archive" for exercises; metric and muscle group are set once at creation — changing them later could silently invalidate the shape of existing ExerciseEntries' sets, so that's out of scope for v1.

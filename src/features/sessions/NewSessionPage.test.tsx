@@ -4,7 +4,13 @@ import { MemoryRouter, Route, Routes } from 'react-router';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { db } from '@/db/db';
 import { getSessionDraft } from '@/db/metaRepo';
-import { makeActivity, makeSession, makeTechnique } from '@/test/factories';
+import {
+  makeActivity,
+  makeExercise,
+  makeExerciseEntry,
+  makeSession,
+  makeTechnique,
+} from '@/test/factories';
 import { NewSessionPage } from './NewSessionPage';
 
 beforeEach(async () => {
@@ -104,6 +110,38 @@ describe('NewSessionPage', () => {
     expect(logs.every((l) => l.date === sessions[0]!.date)).toBe(true);
   });
 
+  it('logs a strength session with a newly created exercise and its sets', async () => {
+    const activity = makeActivity({ name: 'Muscu', category: 'strength' });
+    await db.activities.add(activity);
+
+    renderNew();
+    const user = userEvent.setup();
+
+    await user.click(await screen.findByRole('button', { name: 'Muscu' }));
+    await user.click(screen.getByRole('button', { name: '60' }));
+    await user.click(screen.getByRole('radio', { name: '5' }));
+
+    await user.type(
+      screen.getByRole('textbox', { name: 'Rechercher ou créer un exercice' }),
+      'Squat',
+    );
+    await user.click(screen.getByRole('button', { name: /Créer.*Squat/ }));
+    await user.click(screen.getByRole('button', { name: 'Créer et ajouter' }));
+
+    await user.type(screen.getByRole('spinbutton', { name: 'Set 1 — charge (kg)' }), '100');
+    await user.type(screen.getByRole('spinbutton', { name: 'Set 1 — répétitions' }), '5');
+
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(await screen.findByText('Détail')).toBeInTheDocument();
+    const sessions = await db.sessions.toArray();
+    expect(sessions).toHaveLength(1);
+    const entries = await db.exerciseEntries.where('sessionId').equals(sessions[0]!.id).toArray();
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.sets).toEqual([{ reps: 5, weightKg: 100, warmup: false }]);
+    expect(entries[0]?.date).toBe(sessions[0]!.date);
+  });
+
   it('duplicates a session carrying over the grappling block but not its techniques', async () => {
     const activity = makeActivity({ name: 'JJB perso', category: 'grappling' });
     await db.activities.add(activity);
@@ -120,5 +158,39 @@ describe('NewSessionPage', () => {
     expect(await screen.findByText('Techniques vues')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Gi' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: 'Retirer Marc' })).toBeInTheDocument();
+  });
+
+  it('duplicates a strength session carrying over its exercises and sets', async () => {
+    const activity = makeActivity({ name: 'Muscu', category: 'strength' });
+    await db.activities.add(activity);
+    const exercise = makeExercise({ name: 'Squat' });
+    await db.exercises.add(exercise);
+    const original = makeSession({ activityId: activity.id, durationMin: 60, rpe: 7 });
+    await db.sessions.add(original);
+    await db.exerciseEntries.add(
+      makeExerciseEntry({
+        sessionId: original.id,
+        exerciseId: exercise.id,
+        date: original.date,
+        sets: [{ reps: 5, weightKg: 100, warmup: false }],
+      }),
+    );
+
+    renderNew(`/sessions/new?from=${original.id}`);
+    const user = userEvent.setup();
+
+    expect(await screen.findByText('Squat')).toBeInTheDocument();
+    expect(screen.getByRole('spinbutton', { name: 'Set 1 — charge (kg)' })).toHaveValue(100);
+
+    await user.click(screen.getByRole('radio', { name: '6' }));
+    await user.click(screen.getByRole('button', { name: 'Enregistrer' }));
+
+    expect(await screen.findByText('Détail')).toBeInTheDocument();
+    const sessions = await db.sessions.toArray();
+    expect(sessions).toHaveLength(2);
+    const newSession = sessions.find((s) => s.id !== original.id)!;
+    const entries = await db.exerciseEntries.where('sessionId').equals(newSession.id).toArray();
+    expect(entries).toHaveLength(1);
+    expect(entries[0]?.sets).toEqual([{ reps: 5, weightKg: 100, warmup: false }]);
   });
 });

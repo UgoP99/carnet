@@ -1,6 +1,15 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import type { Activity, Session, Settings, Technique, TechniqueLog } from '@/domain/schemas';
+import type {
+  Activity,
+  Exercise,
+  ExerciseEntry,
+  Session,
+  Settings,
+  Technique,
+  TechniqueLog,
+} from '@/domain/schemas';
 import { db } from './db';
+import { getLastEntry, listEntriesForSession } from './exerciseEntryRepo';
 import { getSettings } from './metaRepo';
 
 export function useActivities(): Activity[] | undefined {
@@ -40,6 +49,26 @@ export function useSessionTechniqueLogs(sessionId: string | undefined): Techniqu
   return useLiveQuery(
     () => (sessionId ? db.techniqueLogs.where('sessionId').equals(sessionId).toArray() : []),
     [sessionId],
+  );
+}
+
+export function useExercises(): Exercise[] | undefined {
+  return useLiveQuery(() => db.exercises.toArray(), []);
+}
+
+export function useSessionExerciseEntries(
+  sessionId: string | undefined,
+): ExerciseEntry[] | undefined {
+  return useLiveQuery(() => (sessionId ? listEntriesForSession(sessionId) : []), [sessionId]);
+}
+
+export function useLastExerciseEntry(
+  exerciseId: string | undefined,
+  excludeSessionId: string | undefined,
+): ExerciseEntry | undefined {
+  return useLiveQuery(
+    () => (exerciseId ? getLastEntry(exerciseId, excludeSessionId) : undefined),
+    [exerciseId, excludeSessionId],
   );
 }
 

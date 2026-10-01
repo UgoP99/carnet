@@ -66,7 +66,7 @@ Read: SPEC §4.2, DOMAIN (Position, Perspective, TechniqueType).
 
 Done when: filters combine correctly (tests); invalid URLs rejected in form; archived techniques hidden from picker.
 
-### [ ] 7. Strength block
+### [x] 7. Strength block
 
 Read: SPEC §4.1 (strength block), DOMAIN (Strength), DATA_MODEL (ExerciseEntry, derived values).
 

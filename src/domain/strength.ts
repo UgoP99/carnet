@@ -1,6 +1,20 @@
 import type { ExerciseMetric } from './labels';
 import type { SetEntry } from './schemas';
 
+/** Short human-readable summary of a set, e.g. "100kg × 5" or "45s". */
+export function formatSet(set: SetEntry, metric: ExerciseMetric): string {
+  switch (metric) {
+    case 'weight_reps':
+      return `${set.weightKg ?? 0}kg × ${set.reps ?? 0}`;
+    case 'reps':
+      return `${set.reps ?? 0} reps`;
+    case 'time':
+      return `${set.durationSec ?? 0}s`;
+    case 'distance':
+      return `${set.distanceM ?? 0}m`;
+  }
+}
+
 /** Epley formula, rounded to 0.5 kg. Only meaningful for non-warmup sets, 1–12 reps, weight > 0. */
 export function e1rm(set: SetEntry): number | null {
   if (set.warmup) return null;
