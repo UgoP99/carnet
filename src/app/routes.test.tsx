@@ -22,6 +22,7 @@ describe('AppRoutes', () => {
     { path: '/settings/exercises', heading: 'Exercices' },
     { path: '/settings/goals', heading: 'Objectifs' },
     { path: '/settings/backup', heading: 'Sauvegarde' },
+    { path: '/settings/about', heading: 'À propos' },
   ];
 
   it.each(HEADING_ROUTES)('renders $path', async ({ path, heading }) => {

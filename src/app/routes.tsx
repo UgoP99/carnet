@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { ActivitiesSettings } from '@/features/settings/ActivitiesSettings';
+import { About } from '@/features/settings/About';
 import { Backup } from '@/features/settings/Backup';
 import { ExercisesSettings } from '@/features/settings/ExercisesSettings';
 import { GoalsSettings } from '@/features/settings/GoalsSettings';
@@ -71,6 +72,7 @@ export function AppRoutes() {
         <Route path="settings/exercises" element={<ExercisesSettings />} />
         <Route path="settings/goals" element={<GoalsSettings />} />
         <Route path="settings/backup" element={<Backup />} />
+        <Route path="settings/about" element={<About />} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

@@ -1,9 +1,16 @@
 /// <reference types="vitest/config" />
+import { readFileSync } from 'node:fs';
 import { fileURLToPath, URL } from 'node:url';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig, type Plugin } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
+
+const appVersion = (
+  JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8')) as {
+    version: string;
+  }
+).version;
 
 // Content-Security-Policy injected as <meta> at build time only (GitHub Pages cannot send headers;
 // the Vite dev server needs inline scripts for HMR). Keep connect-src 'self': the app never talks
@@ -44,6 +51,9 @@ function cspMeta(): Plugin {
 export default defineConfig({
   // GitHub Pages serves under /<repo>/ ; CI sets BASE_PATH. Local dev uses '/'.
   base: process.env.BASE_PATH ?? '/',
+  define: {
+    __APP_VERSION__: JSON.stringify(appVersion),
+  },
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },

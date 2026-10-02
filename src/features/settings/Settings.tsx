@@ -8,6 +8,7 @@ const LINKS: { to: string; label: string }[] = [
   { to: '/settings/exercises', label: 'Exercices' },
   { to: '/settings/goals', label: 'Objectifs' },
   { to: '/settings/backup', label: 'Sauvegarde' },
+  { to: '/settings/about', label: 'À propos' },
 ];
 
 export function Settings() {

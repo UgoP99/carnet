@@ -66,9 +66,12 @@ export function VideoLinksField({ links, onChange }: VideoLinksFieldProps) {
           ))}
         </ul>
       )}
+      <label htmlFor="video-link-url" className="sr-only">
+        URL de la vidéo (https)
+      </label>
       <input
+        id="video-link-url"
         type="url"
-        aria-label="URL de la vidéo (https)"
         placeholder="https://…"
         value={url}
         onChange={(e) => {
@@ -77,9 +80,12 @@ export function VideoLinksField({ links, onChange }: VideoLinksFieldProps) {
         className={inputClass}
       />
       <div className="flex gap-2">
+        <label htmlFor="video-link-label" className="sr-only">
+          Libellé (optionnel)
+        </label>
         <input
+          id="video-link-label"
           type="text"
-          aria-label="Libellé (optionnel)"
           placeholder="Libellé (optionnel)"
           value={label}
           onChange={(e) => {

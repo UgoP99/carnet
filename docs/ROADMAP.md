@@ -108,7 +108,7 @@ Read: SPEC §4.5.
 
 Done when: accent/case-insensitive tests pass; 2 000 sessions search < 200 ms on test data.
 
-### [ ] 12. PWA polish & accessibility
+### [x] 12. PWA polish & accessibility
 
 Read: ARCHITECTURE (PWA & storage), SPEC §5.
 

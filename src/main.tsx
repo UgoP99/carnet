@@ -1,6 +1,5 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { registerSW } from 'virtual:pwa-register';
 import { App } from './App';
 import './index.css';
 
@@ -12,6 +11,3 @@ createRoot(root).render(
     <App />
   </StrictMode>,
 );
-
-// Replaced by an in-app "update available" prompt in ROADMAP step 12.
-registerSW({ immediate: true });

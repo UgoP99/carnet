@@ -102,7 +102,7 @@ export function PlanOutlineRow({
             onClick={() => {
               actions.onToggleCollapse(node.id);
             }}
-            className="flex min-h-8 min-w-8 items-center justify-center text-slate-400"
+            className="flex min-h-11 min-w-11 items-center justify-center text-slate-400"
           >
             {collapsed ? (
               <ChevronRight className="h-4 w-4" aria-hidden="true" />
@@ -111,7 +111,7 @@ export function PlanOutlineRow({
             )}
           </button>
         ) : (
-          <span className="min-w-8" />
+          <span className="min-w-11" />
         )}
 
         {state.mode === 'edit' ? (

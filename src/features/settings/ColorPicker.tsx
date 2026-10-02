@@ -1,4 +1,9 @@
-import { ACTIVITY_COLORS, activityColorClasses, type ActivityColor } from '@/domain/labels';
+import {
+  ACTIVITY_COLORS,
+  activityColorClasses,
+  activityColorLabels,
+  type ActivityColor,
+} from '@/domain/labels';
 
 export function ColorPicker({
   value,
@@ -13,7 +18,7 @@ export function ColorPicker({
         <button
           key={color}
           type="button"
-          aria-label={color}
+          aria-label={activityColorLabels[color]}
           aria-pressed={value === color}
           onClick={() => {
             onChange(color);

@@ -92,8 +92,11 @@ export function TechniquePicker({ techniques, logs, onChange }: TechniquePickerP
               ×
             </button>
           </div>
+          <label htmlFor={`technique-detail-${log.techniqueId}-${index}`} className="sr-only">
+            Détail pour {log.techniqueName}
+          </label>
           <textarea
-            aria-label={`Détail pour ${log.techniqueName}`}
+            id={`technique-detail-${log.techniqueId}-${index}`}
             placeholder="Détail important (optionnel)"
             rows={2}
             value={log.text}

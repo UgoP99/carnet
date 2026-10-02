@@ -100,3 +100,9 @@ SPEC §4.3 doesn't specify navigation for the 12-week charts; only the calendar 
 
 D33 — 2026-10-02 — Search: in-memory scan, highlight is case-insensitive but accent-sensitive
 Matching (`domain/search.ts`) is accent/case-insensitive via `normalize()`, same as the technique filter — fast enough in-memory at personal-DB scale (2000 sessions < 200 ms, tested). The `<mark>` highlight only matches the literal substring case-insensitively (no accent folding): mapping normalized match offsets back to the original string is unreliable because NFD stripping changes string length for accented characters. Accented queries still return the right results; only the visual highlight is occasionally skipped on an accent mismatch.
+
+D34 — 2026-10-02 — App version read from `package.json` via a Vite `define` (`__APP_VERSION__`), not a JSON import
+`tsconfig.node.json` has no `resolveJsonModule`; `vite.config.ts` reads and parses the file with `node:fs` instead and injects the version as a build-time constant, declared in `src/vite-env.d.ts`. Shown on the new Settings > À propos screen alongside the iOS install steps (SPEC §4.6).
+
+D35 — 2026-10-02 — One `UpdateToast` (`useRegisterSW`) covers both "update available" and "offline ready"
+vite-plugin-pwa's hook already exposes `needRefresh` and `offlineReady` together; a single toast component satisfies both the "update prompt" and "offline check" roadmap bullets instead of a separate network-status indicator — "works in airplane mode" is verified manually on-device instead. `virtual:pwa-register/react` is mocked globally in `src/test/setup.ts` since it only resolves under Vite's dev/build pipeline, not Vitest.

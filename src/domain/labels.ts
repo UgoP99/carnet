@@ -53,6 +53,16 @@ export const activityColorClasses: Record<ActivityColor, string> = {
   violet: 'bg-violet-500',
   slate: 'bg-slate-400',
 };
+export const activityColorLabels: Record<ActivityColor, string> = {
+  red: 'Rouge',
+  orange: 'Orange',
+  amber: 'Ambre',
+  emerald: 'Émeraude',
+  teal: 'Turquoise',
+  sky: 'Bleu ciel',
+  violet: 'Violet',
+  slate: 'Ardoise',
+};
 
 export const BODY_ZONES = [
   'neck',
