@@ -100,7 +100,7 @@ Read: SPEC §4.4, DATA_MODEL (GamePlan, GamePlanNode, invariant 6).
 
 Done when: tree operations are unit-tested (move, indent/outdent, delete subtree, depth limit, no cycles); usable one-handed.
 
-### [ ] 11. Search
+### [x] 11. Search
 
 Read: SPEC §4.5.
 

@@ -1,4 +1,3 @@
-import { Construction } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import { ActivitiesSettings } from '@/features/settings/ActivitiesSettings';
@@ -10,12 +9,12 @@ import { EditSessionPage } from '@/features/sessions/EditSessionPage';
 import { NewSessionPage } from '@/features/sessions/NewSessionPage';
 import { SessionDetail } from '@/features/sessions/SessionDetail';
 import { SessionList } from '@/features/sessions/SessionList';
+import { SearchView } from '@/features/search/SearchView';
 import { EditTechniquePage } from '@/features/techniques/EditTechniquePage';
 import { NewTechniquePage } from '@/features/techniques/NewTechniquePage';
 import { TechniqueDetail } from '@/features/techniques/TechniqueDetail';
 import { TechniqueList } from '@/features/techniques/TechniqueList';
 import { WeekView } from '@/features/week/WeekView';
-import { EmptyState } from '@/ui/EmptyState';
 import { Layout } from './Layout';
 import { NotFound } from './NotFound';
 
@@ -28,10 +27,6 @@ const PlanList = lazy(() =>
 const PlanEditor = lazy(() =>
   import('@/features/plans/PlanEditor').then((m) => ({ default: m.PlanEditor })),
 );
-
-function Placeholder({ title }: { title: string }) {
-  return <EmptyState icon={Construction} title={title} description="Écran à venir." />;
-}
 
 export function AppRoutes() {
   return (
@@ -70,7 +65,7 @@ export function AppRoutes() {
             </Suspense>
           }
         />
-        <Route path="search" element={<Placeholder title="Recherche" />} />
+        <Route path="search" element={<SearchView />} />
         <Route path="settings" element={<Settings />} />
         <Route path="settings/activities" element={<ActivitiesSettings />} />
         <Route path="settings/exercises" element={<ExercisesSettings />} />

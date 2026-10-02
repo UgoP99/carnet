@@ -3,18 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { MemoryRouter } from 'react-router';
 import { AppRoutes } from './routes';
 
-const ROUTES: { path: string; heading: string }[] = [{ path: '/search', heading: 'Recherche' }];
-
 describe('AppRoutes', () => {
-  it.each(ROUTES)('renders $path', ({ path, heading }) => {
-    render(
-      <MemoryRouter initialEntries={[path]}>
-        <AppRoutes />
-      </MemoryRouter>,
-    );
-    expect(screen.getByText(heading, { selector: 'p' })).toBeInTheDocument();
-  });
-
   const HEADING_ROUTES: { path: string; heading: string }[] = [
     { path: '/', heading: 'Semaine' },
     { path: '/journal', heading: 'Journal' },
@@ -27,6 +16,7 @@ describe('AppRoutes', () => {
     { path: '/techniques/abc/edit', heading: 'Modifier la technique' },
     { path: '/plans', heading: 'Plans de jeu' },
     { path: '/plans/abc', heading: 'Plan de jeu' },
+    { path: '/search', heading: 'Recherche' },
     { path: '/settings', heading: 'Réglages' },
     { path: '/settings/activities', heading: 'Activités' },
     { path: '/settings/exercises', heading: 'Exercices' },
