@@ -3,6 +3,8 @@ import type {
   Activity,
   Exercise,
   ExerciseEntry,
+  GamePlan,
+  GamePlanNode,
   Session,
   Settings,
   Technique,
@@ -10,6 +12,7 @@ import type {
 } from '@/domain/schemas';
 import { db } from './db';
 import { getLastEntry, listEntriesForExercise, listEntriesForSession } from './exerciseEntryRepo';
+import { listPlanNodes } from './gamePlanRepo';
 import { getSettings } from './metaRepo';
 
 export function useActivities(): Activity[] | undefined {
@@ -76,6 +79,22 @@ export function useLastExerciseEntry(
     () => (exerciseId ? getLastEntry(exerciseId, excludeSessionId) : undefined),
     [exerciseId, excludeSessionId],
   );
+}
+
+export function useGamePlans(): GamePlan[] | undefined {
+  return useLiveQuery(() => db.gamePlans.toArray(), []);
+}
+
+export function useGamePlan(id: string | undefined): GamePlan | undefined {
+  return useLiveQuery(() => (id ? db.gamePlans.get(id) : undefined), [id]);
+}
+
+export function useGamePlanNodes(planId: string | undefined): GamePlanNode[] | undefined {
+  return useLiveQuery(() => (planId ? listPlanNodes(planId) : []), [planId]);
+}
+
+export function useAllGamePlanNodes(): GamePlanNode[] | undefined {
+  return useLiveQuery(() => db.gamePlanNodes.toArray(), []);
 }
 
 export function useLastExportAt(): string | null | undefined {

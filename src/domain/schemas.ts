@@ -185,6 +185,28 @@ export const gamePlanNodeSchema = z.object({
 });
 export type GamePlanNode = z.infer<typeof gamePlanNodeSchema>;
 
+/** Form-level validation: kind dictates which content field is required. Not the entity schema. */
+export const gamePlanNodeContentSchema = z
+  .object({
+    kind: z.enum(GAME_PLAN_NODE_KINDS),
+    position: z.enum(POSITIONS).optional(),
+    techniqueId: id.optional(),
+    text: optionalTrimmed(500),
+    condition: optionalTrimmed(80),
+  })
+  .superRefine((value, ctx) => {
+    if (value.kind === 'position' && !value.position) {
+      ctx.addIssue({ code: 'custom', path: ['position'], message: 'Position requise.' });
+    }
+    if (value.kind === 'technique' && !value.techniqueId) {
+      ctx.addIssue({ code: 'custom', path: ['techniqueId'], message: 'Technique requise.' });
+    }
+    if (value.kind === 'note' && !value.text) {
+      ctx.addIssue({ code: 'custom', path: ['text'], message: 'Texte requis.' });
+    }
+  });
+export type GamePlanNodeContent = z.infer<typeof gamePlanNodeContentSchema>;
+
 const perActivityGoalSchema = z.object({
   activityId: id,
   sessionsPerWeek: z.int().min(1).max(14),

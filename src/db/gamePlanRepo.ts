@@ -1,3 +1,4 @@
+import { nextOrder } from '@/domain/gamePlanTree';
 import { newId } from '@/lib/id';
 import {
   gamePlanNodeSchema,
@@ -114,6 +115,58 @@ export async function updateGamePlanNode(
   });
   await db.gamePlanNodes.put(updated);
   return updated;
+}
+
+async function siblingsOf(planId: string, parentId: string | null): Promise<GamePlanNode[]> {
+  const all = await db.gamePlanNodes.where('planId').equals(planId).toArray();
+  return all.filter((n) => n.parentId === parentId).sort((a, b) => a.order - b.order);
+}
+
+/** Swaps order with the previous/next sibling. No-op at the start/end of the list. */
+export async function moveGamePlanNode(id: string, direction: 'up' | 'down'): Promise<void> {
+  const node = await db.gamePlanNodes.get(id);
+  if (!node) throw new InvariantError(`Nœud introuvable : ${id}`);
+  const siblings = await siblingsOf(node.planId, node.parentId);
+  const index = siblings.findIndex((n) => n.id === id);
+  const swapIndex = direction === 'up' ? index - 1 : index + 1;
+  if (swapIndex < 0 || swapIndex >= siblings.length) return;
+  const other = siblings[swapIndex];
+  if (!other) return;
+  const now = new Date().toISOString();
+  await db.transaction('rw', db.gamePlanNodes, async () => {
+    await db.gamePlanNodes.update(node.id, { order: other.order, updatedAt: now });
+    await db.gamePlanNodes.update(other.id, { order: node.order, updatedAt: now });
+  });
+}
+
+/** Makes the node a child of its previous sibling, appended last. Throws if there is none. */
+export async function indentGamePlanNode(id: string): Promise<GamePlanNode> {
+  const node = await db.gamePlanNodes.get(id);
+  if (!node) throw new InvariantError(`Nœud introuvable : ${id}`);
+  const siblings = await siblingsOf(node.planId, node.parentId);
+  const index = siblings.findIndex((n) => n.id === id);
+  if (index <= 0) throw new InvariantError('Pas de nœud précédent pour indenter.');
+  const newParent = siblings[index - 1];
+  if (!newParent) throw new InvariantError('Pas de nœud précédent pour indenter.');
+  const newSiblings = await siblingsOf(node.planId, newParent.id);
+  return updateGamePlanNode(id, {
+    parentId: newParent.id,
+    order: nextOrder(newSiblings, newParent.id),
+  });
+}
+
+/** Moves the node up to its grandparent, appended last. Throws if already at the root. */
+export async function outdentGamePlanNode(id: string): Promise<GamePlanNode> {
+  const node = await db.gamePlanNodes.get(id);
+  if (!node) throw new InvariantError(`Nœud introuvable : ${id}`);
+  if (node.parentId === null) throw new InvariantError('Déjà à la racine.');
+  const parent = await db.gamePlanNodes.get(node.parentId);
+  if (!parent) throw new InvariantError('Parent introuvable.');
+  const newSiblings = await siblingsOf(node.planId, parent.parentId);
+  return updateGamePlanNode(id, {
+    parentId: parent.parentId,
+    order: nextOrder(newSiblings, parent.parentId),
+  });
 }
 
 /** Deletes a node and its whole subtree, one transaction. */

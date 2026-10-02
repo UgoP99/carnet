@@ -93,4 +93,7 @@ D30 — 2026-10-01 — Stats: fixed per-category chart colors, independent of pe
 SPEC §4.3 asks for a stacked bar by category, but colors are only defined per-activity (user-configurable) in `labels.ts`. Added a second, fixed `ActivityCategory → color` map (`activityCategoryFillClasses`/`activityCategoryDotClasses`) so the 12-week chart's legend stays stable even if the user recolors an activity.
 
 D31 — 2026-10-01 — Stats windows are fixed (trailing 12 weeks ending this week; current month for the heatmap, navigable), no week navigation like Semaine
+
+D32 — 2026-10-01 — Game plan editor: append-only ordering, tap-to-select row toolbar
+Add child/sibling, indent and outdent always append the node at the end of its new sibling group (order = max+1), never inserting mid-list — avoids renumbering siblings and order collisions. The user repositions with ↑/↓ afterwards. Per-row edit actions (modifier, enfant, frère, déplacer, indenter, supprimer) only render once a row is tapped to select it, instead of always-visible icons, to keep the outline usable one-handed on a 375 px screen.
 SPEC §4.3 doesn't specify navigation for the 12-week charts; only the calendar heatmap needs month navigation to be useful. Keeps the view simpler and matches "last 12 weeks" wording literally.

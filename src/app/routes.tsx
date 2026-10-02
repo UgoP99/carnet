@@ -22,6 +22,12 @@ import { NotFound } from './NotFound';
 const StatsView = lazy(() =>
   import('@/features/stats/StatsView').then((m) => ({ default: m.StatsView })),
 );
+const PlanList = lazy(() =>
+  import('@/features/plans/PlanList').then((m) => ({ default: m.PlanList })),
+);
+const PlanEditor = lazy(() =>
+  import('@/features/plans/PlanEditor').then((m) => ({ default: m.PlanEditor })),
+);
 
 function Placeholder({ title }: { title: string }) {
   return <EmptyState icon={Construction} title={title} description="Écran à venir." />;
@@ -40,8 +46,22 @@ export function AppRoutes() {
         <Route path="techniques/new" element={<NewTechniquePage />} />
         <Route path="techniques/:id" element={<TechniqueDetail />} />
         <Route path="techniques/:id/edit" element={<EditTechniquePage />} />
-        <Route path="plans" element={<Placeholder title="Plans de jeu" />} />
-        <Route path="plans/:id" element={<Placeholder title="Plan de jeu" />} />
+        <Route
+          path="plans"
+          element={
+            <Suspense fallback={null}>
+              <PlanList />
+            </Suspense>
+          }
+        />
+        <Route
+          path="plans/:id"
+          element={
+            <Suspense fallback={null}>
+              <PlanEditor />
+            </Suspense>
+          }
+        />
         <Route
           path="stats"
           element={

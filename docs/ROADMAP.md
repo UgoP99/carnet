@@ -92,7 +92,7 @@ Read: SPEC §4.3 (Stats).
 
 Done when: charts render from domain functions (tested), readable in dark/light, no chart dependency.
 
-### [ ] 10. Game plans
+### [x] 10. Game plans
 
 Read: SPEC §4.4, DATA_MODEL (GamePlan, GamePlanNode, invariant 6).
 
