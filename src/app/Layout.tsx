@@ -19,7 +19,7 @@ const TABS: Tab[] = [
 
 export function Layout() {
   return (
-    <div className="flex min-h-dvh flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div className="flex h-dvh flex-col bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100">
       <header className="flex items-center justify-between border-b border-slate-200 px-4 pt-[max(env(safe-area-inset-top),0.75rem)] pb-3 dark:border-slate-800">
         <span className="text-lg font-semibold">Carnet</span>
         <NavLink
